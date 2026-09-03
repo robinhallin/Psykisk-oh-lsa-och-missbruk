@@ -110,7 +110,7 @@
   updateProgress();
   function setActiveNav(name){$$('.side-link').forEach(b=>b.classList.toggle('active',b.dataset.nav===name));}
   function navigate(route,push=true){clearTimers();if(push)location.hash=route;render(route.replace(/^#/,''));window.scrollTo({top:0,behavior:'smooth'});}
-  function heroArt(file,alt=''){return `<div class="hero-art"><img src="assets/${file}" alt="${esc(alt)}"></div>`;}
+  function heroArt(file,alt=''){return `<div class="hero-art"><img src="${file}" alt="${esc(alt)}"></div>`;}
   function sourceChips(list){return `<div class="tagrow source-row">${(list||[]).map(s=>`<span class="source-chip">▣ ${esc(s)}</span>`).join('')}</div>`;}
 
   function home(){
