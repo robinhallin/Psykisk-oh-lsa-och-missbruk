@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 420" role="img" aria-label="Abstrakt illustration av hjärna och samtal">
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#16495c"/><stop offset="1" stop-color="#0f2d3a"/></linearGradient></defs>
+<rect width="640" height="420" rx="36" fill="url(#g)"/>
+<circle cx="462" cy="114" r="86" fill="#f2c46d" opacity=".14"/><circle cx="106" cy="330" r="112" fill="#7bc6b2" opacity=".12"/>
+<path d="M313 95c-58-28-119 13-119 71 0 19 7 38 20 52-19 17-29 41-27 66 4 53 53 89 103 77 18 27 56 31 80 9 31 12 68-3 80-35 37-5 66-37 66-75 0-29-16-55-41-68 8-20 8-42-1-62-19-43-73-59-113-34-14-11-32-17-48-1Z" fill="none" stroke="#f7fbfc" stroke-width="8" stroke-linejoin="round"/>
+<path d="M313 95v270M265 119c26 18 31 42 22 68M361 110c-20 22-24 45-15 68M226 203c26-4 49 5 62 24M398 183c27 3 47 18 57 39M235 289c25-11 50-7 69 10M383 278c31-10 60 0 78 21" fill="none" stroke="#7bc6b2" stroke-width="6" stroke-linecap="round"/>
+<rect x="72" y="60" width="170" height="70" rx="24" fill="#fff" opacity=".98"/><circle cx="106" cy="95" r="8" fill="#16495c"/><circle cx="132" cy="95" r="8" fill="#16495c"/><circle cx="158" cy="95" r="8" fill="#16495c"/><path d="m175 130 18 28 2-33" fill="#fff"/>
+<rect x="414" y="296" width="150" height="62" rx="22" fill="#f2c46d"/><path d="m444 357-11 26 31-26" fill="#f2c46d"/><path d="M447 327h84" stroke="#0f2d3a" stroke-width="7" stroke-linecap="round"/>
+</svg>
