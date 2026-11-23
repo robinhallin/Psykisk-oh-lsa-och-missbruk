@@ -24,7 +24,7 @@ window.createStudyTools = function ({ main, units, read, write, esc, link, row, 
     return html ? '<section class="tool-section"><h2>'+esc(title)+'</h2>'+html+'</section>' : '';
   }
   function box(route,title,meta,description) {
-    return '<a class="tool-card" href="#'+esc(route)+'"><small>'+esc(meta)+'</small><strong>'+esc(title)+'</strong><span>'+esc(description)+'</span><b aria-hidden="true">↗</b></a>';
+    return '<a class="tool-card" href="#'+esc(route)+'"><small>'+esc(meta)+'</small><strong>'+esc(title)+'</strong><span>'+esc(description)+'</span></a>';
   }
   function searchTokens(ref) {
     const tokens = new Set();
@@ -63,33 +63,45 @@ window.createStudyTools = function ({ main, units, read, write, esc, link, row, 
     const score=l=>words.reduce((sum,w)=>sum+(norm(label(l)).split(' ').includes(w)?6:0)+(norm(l.title).includes(w)?3:0),0);
     return results.filter(l=>words.every(w=>l.index.includes(w))).sort((a,b)=>score(b)-score(a));
   }
-  function bank(initial='',initialLaw='',initialStars=false) {
-    const topics=[['Vårdslös körning','vårdslöshet'],['Kontrollera körkort','behörighet'],['På olycksplatsen','trafikolycka'],['Utfärda ordningsbot','ordningsbot'],['Kontrollera nykterhet','alkoholutandningsprov'],['Förbjuda fortsatt färd','fortsatt färd']];
-    const params=new URLSearchParams(initial);
-    let showCount=30;
-    const q=params.get('q')||'', selected=params.get('lag')||initialLaw, stars=params.get('sparade')==='1'||initialStars;
-    main.innerHTML=block(heading('Lagrumsbanken','Sök på situation, författning eller paragraf. Varje kort visar vad du behöver pröva, hur regeln används och var den förekommer i kursen.')+
-      '<div class="bank-layout"><section class="bank-main"><div class="bank-finder"><div><label for="bank-q">Sök i lagrumsbanken</label><input class="search" id="bank-q" type="search" placeholder="Exempelvis olovlig körning, TBL 3 eller TrF 3:22" value="'+esc(q)+'"></div><div><label for="bank-law">Författning</label><select id="bank-law"><option value="">Alla författningar</option>'+instruments.map(l=>'<option value="'+esc(l)+'" '+(l===selected?'selected':'')+'>'+esc(l+' · '+titles.get(l))+'</option>').join('')+'</select></div><label class="check"><input id="bank-stars" type="checkbox" '+(stars?'checked':'')+'> Mina sparade lagrum</label></div><p id="bank-count" class="saved" role="status"></p><div id="bank-results"></div></section><aside class="sidebox"><h2>Öva på lagrummen</h2><p>Ta fem kort. Förklara med egna ord och jämför med kommentaren.</p>'+link('lagrumspass','Öppna lagrumspasset','secondary')+'<h3>Om lagrumskorten</h3><p>Kommentarerna är skrivna för kursen. När ett äldre facit använder tidigare lagtext framgår det på kortet. Längre paragrafserier och tekniska hänvisningar kan vara samlade på ett kort.</p><h3>Vanliga författningar</h3><div class="pills">'+['TBL','TrF','KKL','PL','RB'].filter(l=>titles.has(l)).map(l=>link('lagrumsbank/'+encodeURIComponent('lag='+l),l,'pill')).join('')+'</div></aside></div>');
-    function update(replace=false){
-      const input=dom('bank-q').value, law=dom('bank-law').value, starred=dom('bank-stars').checked;
-      if(replace){
-        const p=new URLSearchParams();if(input)p.set('q',input);if(law)p.set('lag',law);if(starred)p.set('sparade','1');
-        history.replaceState(null,'','#lagrumsbank'+(p.size?'/'+encodeURIComponent(p.toString()):''));showCount=30;
+  const focusGroups=window.STUDIEVAG.groups.map(g=>({...g,items:g.cards.map(c=>laws.find(l=>l.law===c.law&&l.title===c.title))}));
+  const core=focusGroups.flatMap(g=>g.items);
+  const examLaws=new Set(window.STUDIEVAG.examLaws);
+  const bankRoute=params=>'lagrumsbank/'+encodeURIComponent(new URLSearchParams(params).toString());
+  function bank(initial='') {
+    const params=new URLSearchParams(initial), selected=params.get('lag')||'', q=params.get('q')||'';
+    const starred=params.get('sparade')==='1', scope=params.get('visa')||'start';
+    let showCount=20;
+    const groupLink=l=>row(bankRoute({lag:l}),titles.get(l),l);
+    const startView=focusGroups.map(g=>'<details class="study-group"><summary>'+esc(g.title)+'</summary><p>'+esc(g.question)+'</p>'+g.items.map(lawRow).join('')+'</details>').join('');
+    const views=[
+      ['start','Börja här'],['tenta','Tentamenslistan'],['alla','Hela registret']
+    ];
+    main.innerHTML=block(heading('Lagrumsbanken','Studiehandledningen lägger tyngdpunkten på trafikbrottslagen (TBL) och trafikförordningen (TrF). Börja med ett fall och se vilka bestämmelser som hjälper dig att lösa det.')+
+      '<section class="study-column"><label for="bank-q">Sök i hela banken</label><input class="search" id="bank-q" type="search" placeholder="Exempelvis olovlig körning eller TrF 3:22" value="'+esc(q)+'"><nav class="bank-views" aria-label="Urval i lagrumsbanken">'+views.map(([key,title])=>'<a href="#'+(key==='start'?'lagrumsbank':bankRoute({visa:key}))+'" '+(!q&&!selected&&!starred&&scope===key?'aria-current="page"':'')+'>'+title+'</a>').join('')+'</nav><p id="bank-count" class="saved" role="status"></p><div id="bank-results"></div><div class="bank-footer">'+link('lagrumspass','Öva med lagrumskort')+link(bankRoute({sparade:'1'}),'Mina sparade lagrum')+'</div></section>');
+    function update(changed=false){
+      const input=dom('bank-q').value.trim(), law=changed?'':selected, stars=changed?false:starred;
+      if(changed){
+        const next=input?bankRoute({q:input}):(scope==='start'?'lagrumsbank':bankRoute({visa:scope}));
+        history.replaceState(null,'','#'+next);
+        main.querySelectorAll('.bank-views a').forEach(a=>{if(a.hash==='#'+next)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
       }
-      const results=searchBank(input,law,starred);
-      const browse=!input.trim()&&!law&&!starred;
-      dom('bank-count').textContent=browse?laws.length+' lagrumskort · '+instruments.length+' författningar och regelverk':results.length+' lagrumskort';
-      let html;
-      if(browse){
-        html='<div class="bank-topics"><h2>Sök utifrån situationen</h2><div class="pills">'+topics.map(([title,q])=>link('lagrumsbank/'+encodeURIComponent(new URLSearchParams({q}).toString()),title,'pill')).join('')+'</div></div><h2 class="bank-list-title">Hitta din författning</h2><div class="instrument-list">'+[...instruments].sort((a,b)=>Number(coreAreas.has(b))-Number(coreAreas.has(a))).map(k=>row('lagrumsbank/'+encodeURIComponent(new URLSearchParams({lag:k}).toString()),titles.get(k),k,laws.filter(l=>l.law===k).length+' kort')).join('')+'</div>';
+      let html='',count='';
+      if(input||law||stars){
+        const results=searchBank(input,law,stars);
+        count=(law?law+' · ':stars?'Sparade · ':'')+results.length+' träffar';
+        html=results.length?'<div class="frame">'+results.slice(0,showCount).map(lawRow).join('')+'</div>':'<p class="empty">'+(stars?'Spara ett kort med stjärnan för att hitta det här.':'Inga träffar. Prova en förkortning eller ett annat sökord.')+'</p>';
+        if(results.length>showCount)html+='<button class="secondary more" id="bank-more">Visa fler träffar</button>';
+      }else if(scope==='alla'){
+        html='<section class="paper"><h2>Referensregistret</h2><p class="week-intro">Här finns också föreskrifter, tekniska regler och äldre hänvisningar från kursens källor. Använd registret när en specifik uppgift hänvisar hit.</p>'+instruments.map(groupLink).join('')+'</section>';
+      }else if(scope==='tenta'){
+        html='<section class="paper"><h2>Vilken lagtext kan behövas?</h2><p class="week-intro">I ”Information inför tentamen” listar läraren exempel på lagtext som kan behövas. När lag och förordning räknas var för sig blir det 20 författningar. Dokumentet anger inget krav på att kunna alla paragrafer utantill.</p>'+[...examLaws].map(groupLink).join('')+'</section>';
       }else{
-        html=results.length?'<div class="frame">'+results.slice(0,showCount).map(lawRow).join('')+'</div>':'<p class="empty">Inga träffar med de här valen. '+link('lagrumsbank','Visa hela banken')+'</p>';
-        if(results.length>showCount)html+='<button class="secondary more" id="bank-more">Visa fler lagrum</button>';
+        html='<section class="paper"><h2>Fyra fall att börja med</h2><p class="week-intro">Vårt studieupplägg utgår från elva kort i TBL och TrF. Välj situationen du vill förstå.</p>'+startView+'</section>';
       }
-      dom('bank-results').innerHTML=html;
-      if(dom('bank-more'))dom('bank-more').onclick=()=>{const previous=showCount;showCount+=30;update();dom('bank-results').querySelectorAll('.index-row')[previous]?.focus();};
+      dom('bank-count').textContent=count;dom('bank-results').innerHTML=html;
+      if(dom('bank-more'))dom('bank-more').onclick=()=>{const first=showCount;showCount+=20;update(changed);dom('bank-results').querySelectorAll('.index-row')[first]?.focus();};
     }
-    dom('bank-q').oninput=()=>update(true);dom('bank-law').onchange=()=>update(true);dom('bank-stars').onchange=()=>update(true);update();
+    dom('bank-q').oninput=()=>{showCount=20;update(true);};update();
   }
   function fields(l) {
     return [['Vad säger regeln?',l.rule],['Så tillämpar du den',l.apply],['Vanlig fallgrop',l.pitfall]].map(([heading,value])=>section(heading,'<p>'+esc(value)+'</p>')).join('');
@@ -102,8 +114,6 @@ window.createStudyTools = function ({ main, units, read, write, esc, link, row, 
     function sync(){const has=Boolean(saved()[id]);dom('law-star').textContent=has?'★ Sparat till repetition':'☆ Spara till repetition';dom('law-star').setAttribute('aria-pressed',has);}
     dom('law-star').onclick=()=>{write('bank.saved',{[id]:!saved()[id]});sync();};sync();
   }
-  const coreAreas=new Set(['TBL','TrF','KKL','PL','RB','LAU','FoL','FoF','FAP 261-1','BrB','UtlL','KlampL']);
-  const core=laws.filter(l=>coreAreas.has(l.law) && !/historisk|upphävd/i.test(l.ref+' '+l.title));
   const draftKey='bank.pass';
   function selectCards(pool){const arr=Array.from(pool);for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr.slice(0,5).map(l=>l.id);}
   function drill(){
@@ -122,7 +132,7 @@ window.createStudyTools = function ({ main, units, read, write, esc, link, row, 
     dom('again').onclick=()=>advance(true);dom('ready').onclick=()=>advance(false);
   }
   function caseDirectory(){
-    main.innerHTML=block(heading('Fallverkstaden','Öppna ett fall själv eller tillsammans i basgruppen. Situationen utvecklas i tre steg. Efter varje beslut får ni jämföra era skäl med ett svarsstöd.')+'<div class="case-grid">'+cases.map(c=>box('gruppfall/'+c.id,c.title,'Vecka '+c.week+' · cirka '+c.minutes+' min',c.theme)).join('')+'</div>');
+    main.innerHTML=block(heading('Fallverkstaden','Öppna ett fall själv eller tillsammans i basgruppen. Situationen utvecklas i tre steg. Efter varje beslut får ni jämföra era skäl med ett svarsstöd.')+'<div class="case-grid">'+cases.map(c=>box('gruppfall/'+c.id,c.title,'Vecka '+c.week+' · cirka '+c.minutes+' min',c.theme)).join('')+'</div><div class="bank-footer">'+link('rattsfall','Läs och jämför rättsfall från Högsta domstolen')+'</div>');
   }
   function groupCase(id,mode){
     const c=cases.find(x=>x.id===id);if(!c)return caseDirectory();
@@ -153,12 +163,11 @@ window.createStudyTools = function ({ main, units, read, write, esc, link, row, 
     main.innerHTML=block(heading('Rättsfall','Läs omständigheterna, formulera ditt domskäl och jämför med avgörandet. Använd frågan vid varje grupp för att läsa fallen tillsammans.')+'<div class="case-grid praxis-grid">'+groups.map(([title,ids,q])=>'<section class="paper"><h2>'+esc(title)+'</h2><p>'+esc(q)+'</p>'+unitLinks(ids)+'</section>').join('')+'</div>');
   }
   return {
-    entries:laws.map(l=>({type:'Lagrum',title:label(l)+' · '+l.title,text:l.name+' '+l.rule+' '+l.apply,route:'paragraf/'+l.id})),
+    entries:core.map(l=>({type:'Lagrum',title:label(l)+' · '+l.title,text:l.name+' '+l.rule+' '+l.apply,route:'paragraf/'+l.id})),
     routes:{lagrumsbank:'lagrumsbank',paragraf:'lagrumsbank',lagrumspass:'lagrumsbank',fallverkstad:'fallverkstad',gruppfall:'fallverkstad',rattsfall:'rattsfall'},
     render(a,b,c){({lagrumsbank:bank,paragraf:detail,lagrumspass:drill,fallverkstad:caseDirectory,gruppfall:groupCase,rattsfall:precedent})[a](b,c);},
-    home(){return '<div class="tool-strip">'+box('lagrumsbank','Slå upp ett lagrum','Lagrumsbanken','Sök regel, läs kommentaren och pröva den i ett kursmoment.')+box('fallverkstad','Lös ett fall tillsammans','Fallverkstaden','Fatta tre beslut medan situationen utvecklas.')+box('lagrumspass','Testa vad du minns','Lagrumspasset','Förklara fem lagrum utan att titta i anteckningarna.')+'</div>';},
     week(n){const selected=cases.filter(c=>c.week===n);return selected.length?section('Tillämpa veckans kunskaper',selected.map(c=>row('gruppfall/'+c.id,c.title,'Fallverkstaden · '+c.minutes+' min')).join('')):'';},
-    resources(id){const found=byUnit.get(id)||[];return found.length?'<details class="source"><summary>Fördjupa dig i områdets lagrum ('+found.length+')</summary>'+found.map(lawRow).join('')+'</details>':'';},
+    resources(id){const all=byUnit.get(id)||[];const first=all.filter(l=>core.includes(l));const found=(first.length?first:all.filter(l=>examLaws.has(l.law))).slice(0,4);return found.length?'<details class="source"><summary>Fördjupa dig i områdets lagrum ('+found.length+')</summary>'+found.map(lawRow).join('')+link('lagrumsbank','Sök fler lagrum')+'</details>':'';},
     markedCount(){return marked().length;},
     review(){const found=marked();return section('Mina sparade lagrum',found.length?'<div class="compact frame">'+found.map(lawRow).join('')+'</div><div class="actions">'+link('lagrumspass','Öva med lagrumskort','secondary')+'</div>':'<p>Spara kort i '+link('lagrumsbank','Lagrumsbanken')+' för att samla dem här.</p>');},
     old(index){const terms=['TBL 1','TBL 2','TBL 3','TBL 4','TBL 5','TBL 7','TrF 2:8','TrF 3:22','PL 22','RB 48:15','alkoholutandningsprov','FAP 261-1'];return terms[index]?'lagrumsbank/'+encodeURIComponent('q='+encodeURIComponent(terms[index])):'lagrumsbank';}
