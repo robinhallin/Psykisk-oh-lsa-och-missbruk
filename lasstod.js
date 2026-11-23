@@ -36,9 +36,13 @@ window.createReading = function({main, read, write, esc, block, heading, link, r
   dom('read-page').onclick=()=>speak(main.innerText);
   window.addEventListener('pagehide',stop);
   dom('lockBtn').addEventListener('click',stop);
+  function films(items){
+    if(!items.length)return '';
+    return '<section class="paper short-group"><h2>Scenariofilmer</h2>'+items.map(f=>'<section class="tool-section">'+tag(f.ref)+'<h3>'+esc(f.title)+'</h3><div class="actions"><a class="secondary" target="_blank" rel="noopener" href="'+esc(f.url)+'">Spela filmen på Scrimba</a></div><details class="source"><summary>Läs filmen i fyra korta delar</summary>'+f.text.map((p,i)=>'<section class="short-part"><h3>'+['Situationen','Pausa och fundera','Lagstödet','Vad gör patrullen?'][i]+'</h3><p>'+esc(p)+'</p></section>').join('')+'</details></section>').join('')+'</section>';
+  }
   function directory(){
     const list=items=>items.map(x=>row('kortlast/'+x.id,x.title,x.ref)).join('');
-    main.innerHTML=block(heading('Kortläst','Välj en text. Läs eller lyssna på en del i taget.')+'<div class="study-column"><section class="paper"><h2>Rättsfall</h2>'+list(data.texts.filter(x=>x.id.startsWith('r')))+'</section><section class="paper short-group"><h2>Rättsliga vägledningar</h2>'+list(data.texts.filter(x=>x.id.startsWith('v')))+'</section></div>');
+    main.innerHTML=block(heading('Kortläst','Välj en text. Läs eller lyssna på en del i taget.')+'<div class="study-column"><section class="paper"><h2>Rättsfall</h2>'+list(data.texts.filter(x=>x.id.startsWith('r')))+'</section><section class="paper short-group"><h2>Rättsliga vägledningar</h2>'+list(data.texts.filter(x=>x.id.startsWith('v')))+'</section>'+films(window.SCENARIOFILMER)+'</div>');
   }
   function card(id,returnTo){
     const x=texts.get(id);if(!x){directory();return;}
@@ -61,8 +65,9 @@ window.createReading = function({main, read, write, esc, block, heading, link, r
   }
   function related(u,guided){
     const entries=data.texts.filter(x=>x.id===u.id||x.id.startsWith('v')&&x.units.includes(u.id));
-    if(!entries.length)return '';
-    return '<div class="short-related">'+entries.map(x=>link('kortlast/'+x.id+(guided?'/'+u.id:''),'Kortläst · '+x.title)).join('')+'</div>';
+    const movies=films(window.SCENARIOFILMER.filter(f=>f.id===u.id));
+    if(!entries.length)return movies;
+    return movies+'<div class="short-related">'+entries.map(x=>link('kortlast/'+x.id+(guided?'/'+u.id:''),'Kortläst · '+x.title)).join('')+'</div>';
   }
   function partner(u){
     const exercises={
