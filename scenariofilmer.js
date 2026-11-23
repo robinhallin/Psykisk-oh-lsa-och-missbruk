@@ -2,7 +2,7 @@ window.SCENARIOFILMER = [
   {
     "id": "l7",
     "title": "Vem ska väja i cirkulationsplatsen?",
-    "url": "https://scrimba.com/explain/guide07s7jacnk",
+    "url": "l7-scenario.mp4",
     "ref": "TrF 3 kap. 22 §",
     "text": [
       "Du står vid en cirkulationsplats. En grå bil kör redan runt. En blå bil kör in framför den. Den grå föraren bromsar kraftigt.",
@@ -14,7 +14,7 @@ window.SCENARIOFILMER = [
   {
     "id": "l6",
     "title": "Ordningsbot när föraren säger nej",
-    "url": "https://scrimba.com/explain/guide0u9hpbnc3",
+    "url": "l6-scenario.mp4",
     "ref": "RB 48 kap. 15 §",
     "text": [
       "Du ser en bil passera stopplinjen efter att signalen slagit om till rött. Vid samtalet säger föraren att ljuset var grönt när hon passerade linjen.",

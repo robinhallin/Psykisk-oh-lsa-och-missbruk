@@ -38,8 +38,9 @@ window.createReading = function({main, read, write, esc, block, heading, link, r
   dom('lockBtn').addEventListener('click',stop);
   function films(items){
     if(!items.length)return '';
-    return '<section class="paper short-group"><h2>Scenariofilmer</h2>'+items.map(f=>'<section class="tool-section">'+tag(f.ref)+'<h3>'+esc(f.title)+'</h3><div class="actions"><a class="secondary" target="_blank" rel="noopener" href="'+esc(f.url)+'">Spela filmen på Scrimba</a></div><details class="source"><summary>Läs filmen i fyra korta delar</summary>'+f.text.map((p,i)=>'<section class="short-part"><h3>'+['Situationen','Pausa och fundera','Lagstödet','Vad gör patrullen?'][i]+'</h3><p>'+esc(p)+'</p></section>').join('')+'</details></section>').join('')+'</section>';
+    return '<section class="paper short-group"><h2>Scenariofilmer</h2>'+items.map(f=>'<section class="tool-section">'+tag(f.ref)+'<h3>'+esc(f.title)+'</h3><video controls playsinline preload="metadata" aria-label="'+esc(f.title)+'" style="display:block;width:100%;max-width:720px;margin:1rem auto;border-radius:8px" src="'+esc(f.url)+'">Din webbläsare kan inte spela filmen.</video><details class="source"><summary>Läs filmen i fyra korta delar</summary>'+f.text.map((p,i)=>'<section class="short-part"><h3>'+['Situationen','Pausa och fundera','Lagstödet','Vad gör patrullen?'][i]+'</h3><p>'+esc(p)+'</p></section>').join('')+'</details></section>').join('')+'</section>';
   }
+  function cinema(){main.innerHTML=block(heading('Scenariofilmer','Spela upp med ljud eller följ texten i bilden.')+'<div class="study-column">'+films(window.SCENARIOFILMER)+'</div>');}
   function directory(){
     const list=items=>items.map(x=>row('kortlast/'+x.id,x.title,x.ref)).join('');
     main.innerHTML=block(heading('Kortläst','Välj en text. Läs eller lyssna på en del i taget.')+'<div class="study-column"><section class="paper"><h2>Rättsfall</h2>'+list(data.texts.filter(x=>x.id.startsWith('r')))+'</section><section class="paper short-group"><h2>Rättsliga vägledningar</h2>'+list(data.texts.filter(x=>x.id.startsWith('v')))+'</section>'+films(window.SCENARIOFILMER)+'</div>');
@@ -87,5 +88,5 @@ window.createReading = function({main, read, write, esc, block, heading, link, r
     main.querySelectorAll('[data-check]').forEach(b=>b.onchange=()=>write('skrivstod-'+id,{[b.dataset.check]:b.checked}));
     if(dom('rewrite'))dom('rewrite').oninput=e=>write('skrivstod-'+id,{rewrite:e.target.value});
   }
-  return {directory,card,related,stop,audit,bindAudit,partner,bindPartner};
+  return {directory,cinema,card,related,stop,audit,bindAudit,partner,bindPartner};
 };

@@ -269,12 +269,13 @@
     let parts=location.hash.slice(1).split('/').map(s=>{try{return decodeURIComponent(s)}catch{return ''}});
     let [a,b,c]=parts;
     if(!a)a='plan';
-    const valid=['kortlast','tentamensmotor','studiepass','plan','vecka','moment','avslut','repetera','repetition','prov','snabbtest','anteckningar','bok','lagrum','material','kursmal'];
+    const valid=['filmer','kortlast','tentamensmotor','studiepass','plan','vecka','moment','avslut','repetera','repetition','prov','snabbtest','anteckningar','bok','lagrum','material','kursmal'];
     if(!valid.includes(a)&&!Object.hasOwn(tools.routes,a)){const path=legacy(parts);history.replaceState(null,'','#'+path);[a,b,c]=path.split('/');}
     if(a==='lagrum'||(a==='bok'&&b==='Lagrum'&&!c)){const path=a==='lagrum'?tools.old(Number(b)):'lagrumsbank';history.replaceState(null,'','#'+path);[a,b]=path.split('/').map(decodeURIComponent);}
     const nav=tools.routes[a]||(a==='moment'&&units.get(b)?.group==='Rättsfall'?'rattsfall':['bok','lagrum','kursmal','material'].includes(a)?'bok':['tentamensmotor','prov','snabbtest'].includes(a)?'tentamensmotor':'plan');
     document.querySelectorAll('[data-tab]').forEach(el=>{if(el.dataset.tab===nav)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');});
-    if(a==='kortlast'){if(b)reading.card(b,c);else reading.directory();}
+    if(a==='filmer')reading.cinema();
+    else if(a==='kortlast'){if(b)reading.card(b,c);else reading.directory();}
     else if(a==='tentamensmotor'){if(b==='kortpass')engine.short();else engine.render(b,c);}
     else if(a==='studiepass'&&weekPasses.some(p=>[p.learn,p.practice].includes(b)))study(units.get(b),false,true);
     else if(tools.routes[a])tools.render(a,b,c);
