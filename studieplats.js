@@ -44,6 +44,7 @@
   const tools = window.createStudyTools({main,units,read,write,esc,link,row,block,heading,tag,crumb,listing,unitRoute});
   const weekPasses=window.STUDIEVAG.weeks;
   const engine=window.createExamEngine({main,data:reference,read,write,esc,block,heading,link,crumb,tag,meter,weekPasses});
+  const reading=window.createReading({main,read,write,esc,block,heading,link,row,crumb,tag,units});
   function passSteps(w) {
     const p=weekPasses[w.n-1], score=read('veckokoll-'+w.n);
     return [
@@ -134,7 +135,7 @@
     const w=unitWeek(u.id); write('last',{id:u.id});
     const intro=(guided?'':tag('Vecka '+w.n+' · '+unitType(u)))+'<h1>'+esc(u.title)+'</h1><p class="lead">'+esc(u.prompt)+'</p>';
     const flow=weekPasses[w.n-1], phase=u.id===flow.learn?'Steg 1 av 3 · Förstå regeln':'Steg 2 av 3 · Pröva på ett fall';
-    main.innerHTML=block(crumb(reviewMode?'repetition':'vecka/'+w.n,reviewMode?'Min repetition':'Vecka '+w.n+' · '+w.title)+'<div class="study-column"><article class="paper">'+(guided?tag(phase):'')+intro+'<div id="lesson-body"></div></article>'+(guided?'':outline(w,u.id))+'</div>');
+    main.innerHTML=block(crumb(reviewMode?'repetition':'vecka/'+w.n,reviewMode?'Min repetition':'Vecka '+w.n+' · '+w.title)+'<div class="study-column"><article class="paper">'+(guided?tag(phase):'')+intro+reading.related(u,guided)+'<div id="lesson-body"></div></article>'+(guided?'':outline(w,u.id))+'</div>');
     const body=document.getElementById('lesson-body');
     if(u.steps){workshop(u,body,nextUnit(u,w,reviewMode,guided));return;}
     const sections=(u.sections||[]).map((s,i)=>guided?
@@ -142,8 +143,8 @@
       '<section class="prose"><h2>'+esc(s.title)+'</h2><p>'+esc(s.text)+'</p></section>').join('');
     body.innerHTML=sections+workedExample(u)+
       '<section class="practice"><h2>'+esc(u.question||'Hur bedömer du fallet?')+'</h2>'+draftBox(u)+'<div class="actions" id="show-feedback"><button class="primary" id="compare">Jämför med svarsstödet</button></div>'+
-      '<div id="solution" hidden><div class="feedback"><h3>Så kan du resonera</h3>'+listing(u.answer)+'</div><h3>Kan du förklara vad som avgör?</h3>'+rating(u)+'<div class="actions" id="continue" '+(isDone(u.id)?'':'hidden')+'>'+nextUnit(u,w,reviewMode,guided)+'</div></div></section>'+resources(u);
-    bindDraft();bindRating(u,()=>{document.getElementById('continue').hidden=false;});
+      '<div id="solution" hidden><div class="feedback"><h3>Så kan du resonera</h3>'+listing(u.answer)+'</div><h3>Kan du förklara vad som avgör?</h3>'+rating(u)+'<div class="actions" id="continue" '+(isDone(u.id)?'':'hidden')+'>'+nextUnit(u,w,reviewMode,guided)+'</div></div></section>'+reading.partner(u)+resources(u);
+    reading.bindPartner(u);bindDraft();bindRating(u,()=>{document.getElementById('continue').hidden=false;});
     document.getElementById('compare').onclick=()=>{document.getElementById('solution').hidden=false;document.getElementById('show-feedback').hidden=true;document.getElementById('solution').scrollIntoView({block:'nearest'});};
   }
   function workshop(u,body,next){
@@ -166,8 +167,8 @@
     if(!u){exams();return;}
     const next=i<items.length?link('prov/'+n+'/'+(i+1),'Nästa fråga','primary'):submitted?link('prov','Till provpassen','primary'):'<button id="submit-exam" class="primary">Öppna rättningen</button>';
     main.innerHTML=block(crumb('prov','Alla provpass')+'<div class="reader-grid"><article class="paper">'+tag('Provpass '+n+' · Fråga '+i+' av '+items.length)+'<h1>'+esc(u.title)+'</h1><p class="lead">'+esc(u.prompt)+'</p><section class="practice">'+
-      (submitted?'<h2>Ditt svar</h2><p class="your-answer">'+esc(read(u.id).draft||'Frågan lämnades obesvarad.')+'</p><div class="feedback"><h3>Modellresonemang</h3>'+listing(u.answer)+'</div>'+rating(u)+resources(u):draftBox(u))+'</section><div class="actions">'+next+(i>1?link('prov/'+n+'/'+(i-1),'Föregående fråga','secondary'):'')+'</div></article><aside class="sidebox"><h2>'+ (submitted?'Rättning':'Frågor i passet')+'</h2><p>'+ (submitted?'Jämför ditt svar och markera det du vill träna mer på.':'Du kan gå tillbaka och ändra dina svar före rättningen.')+'</p><div class="exam-nav">'+items.map((q,k)=>'<a aria-label="Fråga '+(k+1)+(read(q.id).draft?' · besvarad':'')+'" class="'+(read(q.id).draft?'answered':'')+'" '+(k===i-1?'aria-current="step"':'')+' href="#prov/'+n+'/'+(k+1)+'">'+(k+1)+'</a>').join('')+'</div><p id="answer-count">'+items.filter(q=>read(q.id).draft?.trim()).length+' av '+items.length+' besvarade</p>'+(submitted?'<button class="secondary" id="edit-exam">Återgå till skrivläget</button>':'')+'</aside></div>');
-    bindDraft();bindRating(u);
+      (submitted?'<h2>Ditt svar</h2><p class="your-answer">'+esc(read(u.id).draft||'Frågan lämnades obesvarad.')+'</p><div class="feedback"><h3>Modellresonemang</h3>'+listing(u.answer)+'</div>'+reading.audit(u)+rating(u)+resources(u):draftBox(u))+'</section><div class="actions">'+next+(i>1?link('prov/'+n+'/'+(i-1),'Föregående fråga','secondary'):'')+'</div></article><aside class="sidebox"><h2>'+ (submitted?'Rättning':'Frågor i passet')+'</h2><p>'+ (submitted?'Jämför ditt svar och markera det du vill träna mer på.':'Du kan gå tillbaka och ändra dina svar före rättningen.')+'</p><div class="exam-nav">'+items.map((q,k)=>'<a aria-label="Fråga '+(k+1)+(read(q.id).draft?' · besvarad':'')+'" class="'+(read(q.id).draft?'answered':'')+'" '+(k===i-1?'aria-current="step"':'')+' href="#prov/'+n+'/'+(k+1)+'">'+(k+1)+'</a>').join('')+'</div><p id="answer-count">'+items.filter(q=>read(q.id).draft?.trim()).length+' av '+items.length+' besvarade</p>'+(submitted?'<button class="secondary" id="edit-exam">Återgå till skrivläget</button>':'')+'</aside></div>');
+    bindDraft();bindRating(u);if(submitted)reading.bindAudit(u.id);
     const field=document.getElementById('draft');
     if(field)field.addEventListener('input',()=>{document.getElementById('answer-count').textContent=items.filter(q=>read(q.id).draft?.trim()).length+' av '+items.length+' besvarade';const current=main.querySelector('[aria-current="step"]');current.classList.toggle('answered',!!field.value.trim());});
     const submit=document.getElementById('submit-exam');
@@ -264,16 +265,17 @@
     return {home:'plan',exam:'prov',quiz:'snabbtest',review:'repetition',flashcards:'snabbtest',notes:'anteckningar',modules:'bok/Genomgångar',cases:'bok/Övningar',sources:'bok/Kursmaterial',laws:'lagrumsbank',goals:'bok/Kursmål'}[a]||'plan';
   }
   function render(){
-    ownTools.open=false;engine.leave();
+    ownTools.open=false;engine.leave();reading.stop();
     let parts=location.hash.slice(1).split('/').map(s=>{try{return decodeURIComponent(s)}catch{return ''}});
     let [a,b,c]=parts;
     if(!a)a='plan';
-    const valid=['tentamensmotor','studiepass','plan','vecka','moment','avslut','repetera','repetition','prov','snabbtest','anteckningar','bok','lagrum','material','kursmal'];
+    const valid=['kortlast','tentamensmotor','studiepass','plan','vecka','moment','avslut','repetera','repetition','prov','snabbtest','anteckningar','bok','lagrum','material','kursmal'];
     if(!valid.includes(a)&&!Object.hasOwn(tools.routes,a)){const path=legacy(parts);history.replaceState(null,'','#'+path);[a,b,c]=path.split('/');}
     if(a==='lagrum'||(a==='bok'&&b==='Lagrum'&&!c)){const path=a==='lagrum'?tools.old(Number(b)):'lagrumsbank';history.replaceState(null,'','#'+path);[a,b]=path.split('/').map(decodeURIComponent);}
     const nav=tools.routes[a]||(a==='moment'&&units.get(b)?.group==='Rättsfall'?'rattsfall':['bok','lagrum','kursmal','material'].includes(a)?'bok':['tentamensmotor','prov','snabbtest'].includes(a)?'tentamensmotor':'plan');
     document.querySelectorAll('[data-tab]').forEach(el=>{if(el.dataset.tab===nav)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');});
-    if(a==='tentamensmotor'){if(b==='kortpass')engine.short();else engine.render(b,c);}
+    if(a==='kortlast'){if(b)reading.card(b,c);else reading.directory();}
+    else if(a==='tentamensmotor'){if(b==='kortpass')engine.short();else engine.render(b,c);}
     else if(a==='studiepass'&&weekPasses.some(p=>[p.learn,p.practice].includes(b)))study(units.get(b),false,true);
     else if(tools.routes[a])tools.render(a,b,c);
     else if((a==='moment'||a==='repetera')&&unitWeek(b))study(units.get(b),a==='repetera');
