@@ -45,6 +45,7 @@
   const weekPasses=window.STUDIEVAG.weeks;
   const engine=window.createExamEngine({main,data:reference,read,write,esc,block,heading,link,crumb,tag,meter,weekPasses});
   const reading=window.createReading({main,read,write,esc,block,heading,link,row,crumb,tag,units});
+  const guided=window.createGuidedPasses({main,read,write,esc,link,block,crumb,tag,reading});
   function passSteps(w) {
     const p=weekPasses[w.n-1], score=read('veckokoll-'+w.n);
     return [
@@ -71,12 +72,11 @@
     const lastWeek=unitWeek(read('last').id);
     const unfinished=w=>passSteps(w).some(step=>!step.done);
     const w=lastWeek&&unfinished(lastWeek)?lastWeek:weeks.find(unfinished)||weeks[0];
-    const steps=passSteps(w), next=steps.find(step=>!step.done), p=weekPasses[w.n-1];
     const rows=weeks.map(week=>{
       const count=passSteps(week).filter(step=>step.done).length;
       return '<a class="week-row '+(week===w?'current':'')+'" href="#vecka/'+week.n+'"><span class="week-num"><small>VECKA</small>'+week.n+'</span><span><strong>'+esc(week.title)+'</strong><span class="desc">'+esc(week.focus)+'</span></span><span class="tally" aria-label="'+count+' av tre steg genomförda">'+count+'/3</span></a>';
     }).join('');
-    main.innerHTML=block('<section class="hero focus-hero"><div class="hero-copy">'+tag('Ditt studiepass · vecka '+w.n)+'<h1>'+esc(p.question)+'</h1><p>'+esc(p.task)+'</p>'+link(next?.href||'vecka/'+w.n,next?next.label:'Repetera veckan','primary')+'</div><img src="road.webp" alt=""></section>'+
+    main.innerHTML=block('<section class="hero focus-hero"><div class="hero-copy">'+guided.hero()+'</div><img src="road.webp" alt=""></section>'+
       '<section class="week-outline"><div class="section-head"><h2>Studieplan</h2><small>7 veckor</small></div><p class="week-intro">Varje vecka har en genomgång, ett fall och ett test att börja med. Öppna veckan för att se alla kursmoment.</p><div class="week-list">'+rows+'</div></section>');
   }
   function originals(w,active){
@@ -269,12 +269,13 @@
     let parts=location.hash.slice(1).split('/').map(s=>{try{return decodeURIComponent(s)}catch{return ''}});
     let [a,b,c]=parts;
     if(!a)a='plan';
-    const valid=['filmer','kortlast','tentamensmotor','studiepass','plan','vecka','moment','avslut','repetera','repetition','prov','snabbtest','anteckningar','bok','lagrum','material','kursmal'];
+    const valid=['guidat','filmer','kortlast','tentamensmotor','studiepass','plan','vecka','moment','avslut','repetera','repetition','prov','snabbtest','anteckningar','bok','lagrum','material','kursmal'];
     if(!valid.includes(a)&&!Object.hasOwn(tools.routes,a)){const path=legacy(parts);history.replaceState(null,'','#'+path);[a,b,c]=path.split('/');}
     if(a==='lagrum'||(a==='bok'&&b==='Lagrum'&&!c)){const path=a==='lagrum'?tools.old(Number(b)):'lagrumsbank';history.replaceState(null,'','#'+path);[a,b]=path.split('/').map(decodeURIComponent);}
     const nav=tools.routes[a]||(a==='moment'&&units.get(b)?.group==='Rättsfall'?'rattsfall':['bok','lagrum','kursmal','material'].includes(a)?'bok':['tentamensmotor','prov','snabbtest'].includes(a)?'tentamensmotor':'plan');
     document.querySelectorAll('[data-tab]').forEach(el=>{if(el.dataset.tab===nav)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');});
-    if(a==='filmer')reading.cinema();
+    if(a==='guidat')guided.render(b);
+    else if(a==='filmer')reading.cinema();
     else if(a==='kortlast'){if(b)reading.card(b,c);else reading.directory();}
     else if(a==='tentamensmotor'){if(b==='kortpass')engine.short();else engine.render(b,c);}
     else if(a==='studiepass'&&weekPasses.some(p=>[p.learn,p.practice].includes(b)))study(units.get(b),false,true);

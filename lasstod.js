@@ -88,5 +88,5 @@ window.createReading = function({main, read, write, esc, block, heading, link, r
     main.querySelectorAll('[data-check]').forEach(b=>b.onchange=()=>write('skrivstod-'+id,{[b.dataset.check]:b.checked}));
     if(dom('rewrite'))dom('rewrite').oninput=e=>write('skrivstod-'+id,{rewrite:e.target.value});
   }
-  return {directory,cinema,card,related,stop,audit,bindAudit,partner,bindPartner};
+  return {directory,cinema,card,related,stop,speak,audit,bindAudit,partner,bindPartner};
 };
