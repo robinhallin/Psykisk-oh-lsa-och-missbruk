@@ -73,7 +73,7 @@ window.COURSE_ROOM_DATA = {
    ],
    "sources": [
     "Trafikjuridik 1, bild 23–40",
-    "RåV 2023:18, Vårdslöshet i trafik och trafikrelaterade vållandebrott"
+    "RäV 2023:18, Vårdslöshet i trafik och trafikrelaterade vållandebrott"
    ],
    "refs": [
     {
@@ -116,7 +116,7 @@ window.COURSE_ROOM_DATA = {
    ],
    "sources": [
     "Trafikjuridik 1, bild 41–43",
-    "RåV 2024:3, Olovlig körning, särskilt avsnitt 2–3"
+    "RäV 2024:3, Olovlig körning, särskilt avsnitt 2–3"
    ],
    "refs": [
     {
@@ -137,7 +137,7 @@ window.COURSE_ROOM_DATA = {
    "sections": [
     {
      "title": "Tre sätt att pröva rattfylleri",
-     "text": "TBL 4 § omfattar alkohol över lagens gräns, narkotiskt ämne i blodet samt sådan faktisk påverkan att säker körning inte kan antas. Alkoholgränsen är 0,2 promille i blod eller 0,10 mg/l i utandningsluft. För narkotikaregeln finns ett undantag för intag i enlighet med behörig förskrivares ordination. Även då kan den faktiska körförmågan behöva prövas."
+     "text": "TBL 4 § omfattar alkohol vid eller över lagens gräns, narkotiskt ämne i blodet samt sådan faktisk påverkan att säker körning inte kan antas. Alkoholgränsen är 0,2 promille i blod eller 0,10 mg/l i utandningsluft. För narkotikaregeln finns ett undantag för intag i enlighet med behörig förskrivares ordination. Även då kan den faktiska körförmågan behöva prövas."
     },
     {
      "title": "Vad talar för grovt brott?",
@@ -197,7 +197,7 @@ window.COURSE_ROOM_DATA = {
    ],
    "sources": [
     "Trafikjuridik 2, bild 17–23",
-    "RåV 2023:4, Förverkande enligt 7 § trafikbrottslagen, avsnitt 2–5"
+    "RäV 2023:4, Förverkande enligt 7 § trafikbrottslagen, avsnitt 2–5"
    ],
    "refs": [
     {
@@ -359,7 +359,7 @@ window.COURSE_ROOM_DATA = {
    "sources": [
     "A-traktorer, bild 9–16, 22–25 och 32–37",
     "VVFS 2003:19, kursens upplaga",
-    "RåV 2023:20, avsnitt 2–4"
+    "RäV 2023:20, avsnitt 2–4"
    ],
    "refs": [
     {
@@ -2752,7 +2752,7 @@ window.COURSE_ROOM_DATA = {
     {
      "number": 9,
      "title": "Tung last på släp",
-     "focus": "Utred lasten, surrningen och risken för skada eller att lasten faller av.",
+     "focus": "Utred lasten och risken för skada enligt TrF 3 kap. 80 §. Om du överväger att förbjuda fortsatt färd, ange vilken grund i klampningslagen som är uppfylld. Osäkrad last i sig uppfyller inte 6 §.",
      "practice": "w7-6"
     },
     {

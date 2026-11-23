@@ -41,9 +41,10 @@
   const meter = (n,total) => '<div class="meter" aria-hidden="true"><i style="width:'+Math.round(100*n/(total||1))+'%"></i></div>';
   const row = (route,title,meta='',desc='') => '<a class="index-row" href="#'+esc(route)+'">'+(meta?'<small>'+esc(meta)+'</small>':'')+'<strong>'+esc(title)+'</strong>'+(desc?'<span class="desc">'+esc(desc)+'</span>':'')+'</a>';
   const repeats = () => course.units.filter(u=>read(u.id).rating==='repeat');
+  const tools = window.createStudyTools({main,units,read,write,esc,link,row,block,heading,tag,crumb,listing,unitRoute});
   function resources(u){
     const urls=(u.refs||[]).filter(r=>r.url.startsWith('https://'));
-    return '<details class="source"><summary>Källor till momentet</summary>'+listing(u.sources||[])+(urls.length?'<ul>'+urls.map(r=>'<li><a href="'+esc(r.url)+'" target="_blank" rel="noopener">'+esc(r.label)+'</a></li>').join('')+'</ul>':'')+'</details>';
+    return '<details class="source"><summary>Källor till momentet</summary>'+listing(u.sources||[])+(urls.length?'<ul>'+urls.map(r=>'<li><a href="'+esc(r.url)+'" target="_blank" rel="noopener">'+esc(r.label)+'</a></li>').join('')+'</ul>':'')+'</details>'+tools.resources(u.id);
   }
   function remembered(){
     const last=read('last').id;
@@ -60,7 +61,7 @@
     const action=completed===sequence.length?'Repetera kursen':seen?'Fortsätt studiepasset':'Börja med vecka 1';
     const rows=weeks.map(w=>'<a class="week-row '+(week.n===w.n?'current':'')+'" href="#vecka/'+w.n+'"><span class="week-num"><small>VECKA</small>'+w.n+'</span><span><strong>'+esc(w.title)+'</strong><span class="desc">'+esc(w.focus)+'</span></span><span class="tally" aria-label="'+doneCount(w.ids)+' av '+w.ids.length+' genomgångna">'+doneCount(w.ids)+'/'+w.ids.length+'</span></a>').join('');
     main.innerHTML=block('<section class="hero"><div class="hero-copy">'+tag('Polisutbildningen · Borås')+'<h1>Polisiärt arbete<br>i trafik<span>.</span></h1><p>'+ (seen?'Nästa moment · '+esc(units.get(id).title)+'':'Börja med vad patrullen ser. Träna sedan på att välja lagrum, motivera beslutet och skriva rapporten.')+'</p>'+link(unitRoute(id),action,'primary')+'</div><img src="road.webp" alt="En slingrande landsväg genom barrskog, sedd ovanifrån."></section>'+
-      '<div class="dashboard"><section><div class="section-head"><h2>Din studieplan</h2><small>7 veckor</small></div><div class="week-list">'+rows+'</div></section><aside><section class="sidebox"><h2>Dina framsteg</h2><p class="metric">'+completed+' <small>/ '+sequence.length+' moment</small></p>'+meter(completed,sequence.length)+'<p>Genomgångna i studieplanen.</p>'+link('repetition','Min repetition ('+repeats().length+')')+'</section><section class="sidebox"><h2>Inför salstentan</h2><p>16 januari · 09.30–12.30<br>JUNO eller okommenterad lagtext enligt kursens tentamensinformation.</p>'+link('prov','Öppna provpassen')+'</section></aside></div>');
+      tools.home()+'<div class="dashboard"><section><div class="section-head"><h2>Din studieplan</h2><small>7 veckor</small></div><div class="week-list">'+rows+'</div></section><aside><section class="sidebox"><h2>Dina framsteg</h2><p class="metric">'+completed+' <small>/ '+sequence.length+' moment</small></p>'+meter(completed,sequence.length)+'<p>Genomgångna i studieplanen.</p>'+link('repetition','Min repetition ('+(repeats().length+tools.markedCount())+')')+'</section><section class="sidebox"><h2>Inför salstentan</h2><p>16 januari · 09.30–12.30<br>JUNO eller okommenterad lagtext enligt kursens tentamensinformation.</p>'+link('prov','Öppna provpassen')+'</section></aside></div>');
   }
   function originals(w,active){
     const group=course.weekMap.find(g=>g.week===w.n);
@@ -69,7 +70,7 @@
   }
   function weekPage(w,original){
     const id=nextIn(w), n=doneCount(w.ids);
-    main.innerHTML=block(crumb('plan','Studieplan')+heading(w.title,w.focus,'Vecka '+w.n)+'<div class="reader-grid"><div><div class="frame">'+w.ids.map((id,i)=>{const u=units.get(id);return row(unitRoute(id),u.title,(i+1)+' / '+w.ids.length+' · '+unitType(u),stateLabel(id));}).join('')+'</div>'+originals(w,original)+'</div><aside class="sidebox"><h2>Veckans studiepass</h2><p>'+n+' av '+w.ids.length+' moment genomgångna.</p>'+meter(n,w.ids.length)+link(unitRoute(id),n===w.ids.length?'Repetera veckan':'Öppna nästa moment','primary')+'<p class="saved">Kursmål '+esc(w.goals)+'</p><p class="saved">Veckouppgifterna följer Canvas. Genomgångar och rättsfall är ordnade för självstudier.</p></aside></div>');
+    main.innerHTML=block(crumb('plan','Studieplan')+heading(w.title,w.focus,'Vecka '+w.n)+'<div class="reader-grid"><div><div class="frame">'+w.ids.map((id,i)=>{const u=units.get(id);return row(unitRoute(id),u.title,(i+1)+' / '+w.ids.length+' · '+unitType(u),stateLabel(id));}).join('')+'</div>'+tools.week(w.n)+originals(w,original)+'</div><aside class="sidebox"><h2>Veckans studiepass</h2><p>'+n+' av '+w.ids.length+' moment genomgångna.</p>'+meter(n,w.ids.length)+link(unitRoute(id),n===w.ids.length?'Repetera veckan':'Öppna nästa moment','primary')+'<p class="saved">Kursmål '+esc(w.goals)+'</p><p class="saved">Veckouppgifterna följer Canvas. Genomgångar och rättsfall är ordnade för självstudier.</p></aside></div>');
     if(original)requestAnimationFrame(()=>document.getElementById('original-'+original)?.scrollIntoView({block:'center'}));
   }
   function outline(w,id){
@@ -135,7 +136,7 @@
       const items=examUnits(n),submitted=read('prov-'+n).submitted,answered=items.filter(u=>read(u.id).draft?.trim()).length;
       const next=Math.max(0,items.findIndex(u=>!read(u.id).draft?.trim()))+1;
       return '<section class="paper">'+tag('Provpass '+n+' · 7 skrivfrågor')+'<h2>'+names[i]+'</h2><p>'+ (n===1?'Bedöm bland annat en påkörd cyklist, en godkänd ordningsbot och vem som får låna en bil.':'Pröva bland annat fordonsklass, föraridentitet och vilka uppgifter som behövs efter en kollision.')+'</p><p class="saved">'+answered+' av '+items.length+' svar sparade</p>'+meter(answered,items.length)+'<div class="actions">'+link('prov/'+n+'/'+(submitted?1:next),submitted?'Granska svaren':answered?'Fortsätt provpasset':'Starta provpasset','primary')+'</div></section>';
-    }).join('')+'</div><div class="sidebox trail"><h2>Kort kunskapskoll</h2><p>Åtta blandade flervalsfrågor. Du får förklaringen efter varje val.</p>'+link('snabbtest',read('snabbtest').ids?'Öppna kunskapskollen':'Starta kunskapskollen')+'</div>');
+    }).join('')+'</div><div class="sidebox trail"><h2>Kort kunskapskoll</h2><p>Åtta blandade flervalsfrågor. Du får förklaringen efter varje val.</p>'+link('snabbtest',read('snabbtest').ids?'Öppna kunskapskollen':'Starta kunskapskollen')+'</div><div class="sidebox trail"><h2>Träna på lagstödet</h2><p>Förklara fem bestämmelser muntligt, jämför med tillämpningskommentaren och samla svåra kort till nästa pass.</p>'+link('lagrumspass','Öppna lagrumspasset')+'</div>');
   }
   function exam(n,i){
     const items=examUnits(n),u=items[i-1],submitted=read('prov-'+n).submitted;
@@ -176,7 +177,7 @@
   }
   function repetition(){
     const list=repeats();
-    main.innerHTML=block(crumb('plan','Studieplan')+heading('Min repetition',list.length?'Öppna ett moment och pröva bedömningen igen. När du markerar ”Kan förklara” försvinner det härifrån.':'När du väljer ”Öva igen” hamnar momentet här. Här samlas också beslutsövningar där du missade ett steg.')+'<div class="compact frame">'+ (list.length?list.map(u=>row(unitWeek(u.id)?'repetera/'+u.id:unitRoute(u.id),u.title,u.group)).join(''):'<div class="empty">Du har inga moment markerade för repetition.</div>')+'</div><div class="actions">'+link(unitRoute(remembered()),'Fortsätt studieplanen','secondary')+'</div>');
+    main.innerHTML=block(crumb('plan','Studieplan')+heading('Min repetition',list.length?'Öppna ett moment och pröva bedömningen igen. När du markerar ”Kan förklara” försvinner det härifrån.':'När du väljer ”Öva igen” hamnar momentet här. Här samlas också beslutsövningar där du missade ett steg.')+'<div class="compact frame">'+ (list.length?list.map(u=>row(unitWeek(u.id)?'repetera/'+u.id:unitRoute(u.id),u.title,u.group)).join(''):'<div class="empty">Du har inga moment markerade för repetition.</div>')+'</div><div class="actions">'+link(unitRoute(remembered()),'Fortsätt studieplanen','secondary')+'</div>'+tools.review());
   }
   const noteKey='trafik.d1pt2u.notes';
   function notes(){
@@ -186,7 +187,7 @@
   }
   const categories=['Lagrum','Genomgångar','Rättsfall','Övningar','Canvasuppgifter','Kursmaterial','Kursmål'];
   const entries=[
-    ...reference.laws.map((x,i)=>({type:'Lagrum',title:x.ref+' · '+x.title,text:x.text,route:'lagrum/'+i})),
+    ...tools.entries,
     ...course.units.map(u=>({type:u.group==='Lektioner'?'Genomgångar':u.group==='Rättsfall'?'Rättsfall':'Övningar',title:u.title,text:[u.group,u.prompt,u.question,...(u.answer||[]),...(u.sources||[])].join(' '),route:unitRoute(u.id),context:unitWeek(u.id)?'Vecka '+unitWeek(u.id).n+' · '+unitType(u):u.group})),
     ...course.weekMap.flatMap(w=>w.items.map(x=>({type:'Canvasuppgifter',title:x.title,text:x.focus,context:'Vecka '+w.week+' · Uppgift '+x.number,route:'vecka/'+w.week+'/'+x.number}))),
     ...course.material.flatMap((g,i)=>g.files.map(f=>({type:'Kursmaterial',title:f,text:g.title,route:'material/'+i}))),
@@ -202,7 +203,7 @@
       const filtered=entries.filter(e=>(!select.value||select.value===e.type)&&words.every(w=>normalize(e.title+' '+e.text+' '+(e.context||'')).includes(w)));
       if(!words.length&&!select.value){
         document.getElementById('result-count').textContent='';
-        document.getElementById('results').innerHTML='<div class="frame">'+categories.map(t=>row('bok/'+encodeURIComponent(t),t,'',entries.filter(e=>e.type===t).length+' poster')).join('')+'</div>';return;
+        document.getElementById('results').innerHTML='<div class="frame">'+categories.map(t=>row(t==='Lagrum'?'lagrumsbank':t==='Rättsfall'?'rattsfall':'bok/'+encodeURIComponent(t),t,'',entries.filter(e=>e.type===t).length+' poster')).join('')+'</div>';return;
       }
       const sorted=filtered.sort((a,b)=>words.filter(w=>normalize(b.title).includes(w)).length-words.filter(w=>normalize(a.title).includes(w)).length);
       document.getElementById('result-count').textContent=sorted.length+' träffar';
@@ -236,7 +237,7 @@
     if(a==='module')return unitRoute(oldModules[b]||'l1');
     if(a==='case')return unitRoute(oldCases[b]||'l1');
     if(a==='study')return b==='basgrupp'?'moment/basgrupp-kallor':'prov';
-    return {home:'plan',exam:'prov',quiz:'snabbtest',review:'repetition',flashcards:'snabbtest',notes:'anteckningar',modules:'bok/Genomgångar',cases:'bok/Övningar',sources:'bok/Kursmaterial',laws:'bok/Lagrum',goals:'bok/Kursmål'}[a]||'plan';
+    return {home:'plan',exam:'prov',quiz:'snabbtest',review:'repetition',flashcards:'snabbtest',notes:'anteckningar',modules:'bok/Genomgångar',cases:'bok/Övningar',sources:'bok/Kursmaterial',laws:'lagrumsbank',goals:'bok/Kursmål'}[a]||'plan';
   }
   function render(){
     ownTools.open=false;
@@ -244,10 +245,12 @@
     let [a,b,c]=parts;
     if(!a)a='plan';
     const valid=['plan','vecka','moment','avslut','repetera','repetition','prov','snabbtest','anteckningar','bok','lagrum','material','kursmal'];
-    if(!valid.includes(a)){const path=legacy(parts);history.replaceState(null,'','#'+path);[a,b,c]=path.split('/');}
-    const nav=['bok','lagrum','kursmal','material'].includes(a)?'bok':['prov','snabbtest'].includes(a)?'prov':'plan';
+    if(!valid.includes(a)&&!Object.hasOwn(tools.routes,a)){const path=legacy(parts);history.replaceState(null,'','#'+path);[a,b,c]=path.split('/');}
+    if(a==='lagrum'||(a==='bok'&&b==='Lagrum'&&!c)){const path=a==='lagrum'?tools.old(Number(b)):'lagrumsbank';history.replaceState(null,'','#'+path);[a,b]=path.split('/').map(decodeURIComponent);}
+    const nav=tools.routes[a]||(a==='moment'&&units.get(b)?.group==='Rättsfall'?'rattsfall':['bok','lagrum','kursmal','material'].includes(a)?'bok':['prov','snabbtest'].includes(a)?'prov':'plan');
     document.querySelectorAll('[data-tab]').forEach(el=>{if(el.dataset.tab===nav)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');});
-    if((a==='moment'||a==='repetera')&&unitWeek(b))study(units.get(b),a==='repetera');
+    if(tools.routes[a])tools.render(a,b,c);
+    else if((a==='moment'||a==='repetera')&&unitWeek(b))study(units.get(b),a==='repetera');
     else if(a==='vecka'&&weeks[Number(b)-1])weekPage(weeks[Number(b)-1],Number(c));
     else if(a==='avslut'&&weeks[Number(b)-1])endWeek(weeks[Number(b)-1]);
     else if(a==='repetition')repetition();
@@ -263,7 +266,7 @@
   document.documentElement.dataset.theme=local.get('study.theme')||'light';
   document.getElementById('themeBtn').onclick=()=>{const value=document.documentElement.dataset.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=value;local.set('study.theme',value);ownTools.open=false;};
   document.addEventListener('click',e=>{if(ownTools.open&&!ownTools.contains(e.target))ownTools.open=false;});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape')ownTools.open=false;if(e.key==='/'&&!document.getElementById('portalShell').hidden&&!/input|textarea|select/i.test(document.activeElement.tagName)){e.preventDefault();if(!location.hash.startsWith('#bok'))location.hash='bok';requestAnimationFrame(()=>document.getElementById('search')?.focus());}});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')ownTools.open=false;if(e.key==='/'&&!document.getElementById('portalShell').hidden&&!/input|textarea|select/i.test(document.activeElement.tagName)){e.preventDefault();if(location.hash.startsWith('#lagrumsbank'))document.getElementById('bank-q')?.focus();else{if(!location.hash.startsWith('#bok'))location.hash='bok';requestAnimationFrame(()=>document.getElementById('search')?.focus());}}});
   document.querySelector('.skip').onclick=e=>{e.preventDefault();main.focus();};
   window.addEventListener('hashchange',()=>{window.scrollTo(0,0);render();main.focus({preventScroll:true});});
   render();
