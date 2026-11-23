@@ -1,9 +1,7 @@
-# Polisiärt arbete i trafik
+# Trafikportalen
 
-Studieportal för D1PT2U, 6,5 hp, vid Högskolan i Borås. Webbplatsen publiceras med GitHub Pages från repositoryts rot.
+Studieplats för Polisiärt arbete i trafik (D1PT2U) på polisutbildningen i Borås. GitHub Pages publicerar webbplatsen från repositoryts rot.
 
-Startsidan har två studievägar utifrån kursens examinationsmål. I varje övning följer studenten ett exempel, motiverar ett beslut när förutsättningarna ändras och jämför sitt svar med stöd för självbedömning. Ett kortpass ger två övningsfrågor per salstentamål.
+Studieplanen samlar kursens genomgångar, rättsfall och övningar i sju veckor. Under Provpass finns skrivträning och kunskapsfrågor. Uppslagsboken länkar till moment, lagrum och kursmaterial. Webbplatsen sparar framsteg, svar och anteckningar i webbläsaren.
 
-Portalen innehåller kursmoduler, övningsprov med direkt eller uppskjuten återkoppling, flerstegsfall, en lagrumsbank, kursmål och schemalagd repetition. Källorna listas i portalen. Studieprogress och anteckningar för D1PT2U sparas i webbläsaren.
-
-Öppna index.html via en lokal webbserver för utveckling. PIN-funktionen använder Web Crypto och behöver HTTPS eller localhost.
+Öppna index.html via en lokal webbserver för utveckling. PIN-funktionen använder Web Crypto och kräver HTTPS eller localhost.

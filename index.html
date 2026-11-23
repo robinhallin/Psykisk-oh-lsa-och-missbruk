@@ -1,102 +1,34 @@
 <!doctype html>
 <html lang="sv">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#0f2d3a" />
-  <meta name="description" content="Interaktiv studieportal för Polisiärt arbete i trafik." />
-  <title>Polisiärt arbete i trafik · Studieportal</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css?kurs=kursrum3" />
-  <link rel="stylesheet" href="course-room.css?kurs=kursrum3" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#182e31">
+  <meta name="description" content="Studera Polisiärt arbete i trafik vecka för vecka. Lös kursnära fall och jämför dina beslut med lagrum och svarsstöd.">
+  <title>Trafikportalen · Polisiärt arbete i trafik</title>
+  <link rel="icon" href="favicon.svg">
+  <link rel="stylesheet" href="studieplats.css?v=4">
 </head>
 <body>
-  <section class="pin-gate" id="pinGate" aria-labelledby="pinTitle">
-    <div class="pin-card">
-      <div class="pin-mark" aria-hidden="true">P</div>
-      <p class="pin-eyebrow">D1PT2U · POLISUTBILDNINGEN</p>
-      <h1 id="pinTitle">Polisiärt arbete i trafik</h1>
-      <p class="pin-subtitle">Ange din PIN-kod för att öppna studieportalen.</p>
-      <form id="pinForm" class="pin-form" autocomplete="off">
-        <label for="pinInput">PIN-kod</label>
-        <input id="pinInput" name="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" aria-describedby="pinStatus" placeholder="••••" autofocus />
-        <button class="pin-submit" type="submit">Lås upp</button>
-      </form>
-      <p class="pin-status" id="pinStatus" role="status" aria-live="polite"></p>
-      <small class="pin-note">Åtkomsten gäller i den här fliken tills du stänger den eller väljer Lås.</small>
+  <section id="pinGate" class="entry" aria-labelledby="pinTitle">
+    <div class="entry-photo">
+      <div class="brand inverse"><i class="mark" aria-hidden="true"></i>Trafikportalen</div>
+      <div class="entry-caption"><p class="eyebrow">Polisutbildningen i Borås</p><h1 id="pinTitle">Polisiärt arbete<br>i trafik<span>.</span></h1><p>D1PT2U &nbsp; / &nbsp; 6,5 högskolepoäng</p></div>
+    </div>
+    <div class="entry-form"><p class="eyebrow">Din studieplats</p><h2>Öppna kursen</h2><p>Ange din fyrsiffriga PIN-kod för att fortsätta.</p>
+      <form id="pinForm"><label for="pinInput">PIN-kod</label><input id="pinInput" type="password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" required placeholder="••••" autocomplete="off" aria-describedby="pinStatus"><button class="primary" type="submit">Öppna Trafikportalen</button></form>
+      <p id="pinStatus" class="pin-status" role="status"></p>
     </div>
   </section>
-
   <div id="portalShell" hidden aria-hidden="true">
-  <a class="skip-link" href="#main">Hoppa till innehåll</a>
-
-  <header class="topbar">
-    <button class="brand" data-nav="home" aria-label="Till startsidan">
-      <span class="brand-mark" aria-hidden="true">P</span>
-      <span><strong>Trafikportalen</strong><small>Polisutbildningen · Borås</small></span>
-    </button>
-    <nav class="topnav" aria-label="Huvudmeny">
-      <button data-nav="kurs/lektioner">Lektioner</button>
-      <button data-nav="kurs/veckor">Veckoträning</button>
-      <button data-nav="kurs/prov">Provpass</button>
-      <button data-nav="kurs/repetera">Min repetition</button>
-    </nav>
-    <div class="top-actions">
-      <select id="mobileNav" aria-label="Navigera i trafikportalen">
-        <option value="home">Översikt</option><option value="kurs/lektioner">Lektioner</option><option value="kurs/veckor">Veckoträning</option><option value="kurs/verkstad">Ordningsbotsverkstad</option><option value="kurs/praxis">Rättsfall</option><option value="kurs/prov">Skrivna provpass</option><option value="kurs/seminarium">Seminarieträning</option><option value="kurs/repetera">Min repetition</option><option value="kurs/material">Kursmaterial</option><option value="study/salstenta">Inför salstentan</option><option value="study/basgrupp">Inför basgruppen</option><option value="modules">Moduler</option><option value="laws">Lagrum</option><option value="goals">Kursmål</option><option value="review">Repetition</option><option value="exam">Tentaträning</option><option value="cases">Trafikfall</option><option value="notes">Anteckningar</option><option value="sources">Källor</option>
-      </select>
-      <button class="icon-btn" id="searchBtn" title="Sök (/)" aria-label="Sök">⌕</button>
-      <button class="icon-btn" id="themeBtn" title="Växla tema" aria-label="Växla färgtema">◐</button>
-      <button class="icon-btn" id="lockBtn" title="Lås studieportalen" aria-label="Lås studieportalen">⌾</button>
-    </div>
-  </header>
-
-  <aside class="sidebar" id="sidebar" aria-label="Studieverktyg">
-    <div class="progress-card">
-      <div class="progress-ring" id="progressRing"><span id="progressPct">0%</span></div>
-      <div><strong>Din kursträning</strong><small id="progressText">Läser in dina resultat</small></div>
-    </div>
-    <button class="side-link active" data-nav="home">⌂ <span>Översikt</span></button>
-    <button class="side-link" data-nav="kurs/lektioner">▦ <span>Lektioner</span></button>
-    <button class="side-link" data-nav="kurs/veckor">▤ <span>Veckoträning</span></button>
-    <button class="side-link" data-nav="kurs/verkstad">§ <span>Ordningsbotsverkstad</span></button>
-    <button class="side-link" data-nav="kurs/praxis">◇ <span>Rättsfall</span></button>
-    <button class="side-link" data-nav="kurs/prov">✓ <span>Skrivna provpass</span></button>
-    <button class="side-link" data-nav="kurs/seminarium">◎ <span>Seminarieträning</span></button>
-    <button class="side-link" data-nav="kurs/repetera">↻ <span>Min repetition</span></button>
-    <button class="side-link" data-nav="kurs/material">▥ <span>Kursmaterial</span></button>
-    <details id="more-tools"><summary class="cr-nav-heading">Fler studieverktyg</summary>
-    <button class="side-link" data-nav="study/salstenta">◇ <span>Inför salstentan</span></button>
-    <button class="side-link" data-nav="study/basgrupp">▤ <span>Inför basgruppen</span></button>
-    <button class="side-link" data-nav="modules">▦ <span>Alla moduler</span></button>
-    <button class="side-link" data-nav="laws">§ <span>Lagrumsbanken</span></button>
-    <button class="side-link" data-nav="goals">◎ <span>Lärandemål</span></button>
-    <button class="side-link" data-nav="review">↻ <span>Smart repetition</span></button>
-    <button class="side-link" data-nav="exam">✓ <span>Tentamensmotor</span></button>
-    <button class="side-link" data-nav="cases">◇ <span>Case-tränare</span></button>
-    <button class="side-link" data-nav="notes">✎ <span>Mina anteckningar</span></button>
-    <button class="side-link" data-nav="sources">i <span>Källor & avgränsning</span></button>
-    </details>
-  </aside>
-
-  <main id="main" tabindex="-1"></main>
-
-  <div class="search-overlay" id="searchOverlay" hidden>
-    <div class="search-panel" role="dialog" aria-modal="true" aria-labelledby="searchTitle">
-      <div class="search-head"><h2 id="searchTitle">Sök i kursen</h2><button id="searchClose" class="icon-btn" aria-label="Stäng sökning">×</button></div>
-      <input id="searchInput" type="search" autocomplete="off" placeholder="Sök t.ex. rattfylleri, väjningsplikt, TBL 3 §…" />
-      <div id="searchResults" class="search-results"></div>
-      <small>Tips: tryck <kbd>/</kbd> för att öppna och <kbd>Esc</kbd> för att stänga.</small>
-    </div>
+    <a class="skip" href="#main">Hoppa till innehållet</a>
+    <header class="bar"><div class="bar-inner"><a class="brand" href="#plan"><i class="mark" aria-hidden="true"></i>Trafikportalen</a>
+      <nav aria-label="Huvudmeny"><a href="#plan" data-tab="plan">Studieplan</a><a href="#prov" data-tab="prov">Provpass</a><a href="#bok" data-tab="bok">Uppslagsbok</a></nav>
+      <details id="tools" class="tools"><summary aria-label="Öppna egna verktyg" title="Egna verktyg"><span class="menuicon" aria-hidden="true"></span></summary>
+        <div><a href="#repetition">Min repetition</a><a href="#anteckningar">Mina anteckningar</a><button id="themeBtn" type="button">Växla färgtema</button><button type="button" id="lockBtn">Lås portalen</button></div>
+      </details></div></header>
+    <main id="main" tabindex="-1"></main>
+    <footer class="foot"><span>Trafikportalen</span><span>Polisiärt arbete i trafik · D1PT2U</span></footer>
   </div>
-
-
-  </div>
-
-  <script src="pin-lock.js"></script>
-  <script src="data.js?kurs=kursrum3"></script>
-  <script src="course-data.js?kurs=kursrum3"></script>
-  <script src="course-ui.js?kurs=kursrum3"></script>
-  <script src="app.js?kurs=kursrum3"></script>
-</body>
-</html>
+  <script src="pin-lock.js"></script><script src="data.js"></script><script src="course-data.js"></script><script src="studieplats.js?v=4"></script>
+</body></html>
