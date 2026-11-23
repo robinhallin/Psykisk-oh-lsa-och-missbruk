@@ -125,11 +125,12 @@
   function moduleTestRec(id){return state.moduleTests[id]||{best:0,last:0,attempts:0};}
   function moduleMastered(id){return (moduleTestRec(id).best||0)>=80;}
   function masteredModuleCount(){return D.modules.filter(m=>moduleMastered(m.id)).length;}
-  function updateProgress(){const total=D.modules.length,n=masteredModuleCount(),p=Math.round(n/total*100);$('#progressPct').textContent=p+'%';$('#progressText').textContent=`${n} av ${total} moduler behärskade`;$('#progressRing').style.setProperty('--p',`${p*3.6}deg`);}
+  function updateProgress(){const {total,ready:n}=window.CourseRoom.progress(),p=Math.round(n/total*100);$('#progressPct').textContent=p+'%';$('#progressText').textContent=`${n} av ${total} moment klara`;$('#progressRing').style.setProperty('--p',`${p*3.6}deg`);}
   function goalEvidence(id){const x=state.goalMastery[id]||{correct:0,total:0};return {...x,pct:pct(x.correct,x.total)};}
   function updateGoalEvidence(id,correct){if(!id)return;const x=state.goalMastery[id]||{correct:0,total:0};x.total++;if(correct)x.correct++;x.updated=Date.now();state.goalMastery[id]=x;persist(LS.goalMastery,state.goalMastery);}
+  window.addEventListener('course-progress',updateProgress);
   updateProgress();
-  function setActiveNav(name){$('#mobileNav').value=name;$$('.side-link').forEach(b=>b.classList.toggle('active',b.dataset.nav===name));}
+  function setActiveNav(name){if(name!=='home' && !name.startsWith('kurs/'))$('#more-tools').open=true;$('#mobileNav').value=name;$$('.side-link').forEach(b=>b.classList.toggle('active',b.dataset.nav===name));}
   function navigate(route,push=true){clearTimers();if(push && location.hash.slice(1)!==route){location.hash=route;return;}render(route.replace(/^#/,''));window.scrollTo({top:0,behavior:'smooth'});}
   function heroArt(file,alt=''){return `<div class="hero-art"><img src="${file}" alt="${esc(alt)}"></div>`;}
   function sourceChips(list){return `<div class="tagrow source-row">${(list||[]).map(s=>`<span class="source-chip">▣ ${esc(s)}</span>`).join('')}</div>`;}
@@ -155,26 +156,7 @@
   function studyRoute(track,index){
     return 'study/'+track.id+'/'+track.lessons[index].id;
   }
-  function home(){
-    setActiveNav('home');
-    const pathways=D.tracks.map(track=>{
-      const progress=trackStats(track);
-      const label=progress.count===track.lessons.length?'Repetera studievägen':progress.count?'Fortsätt där du slutade':'Börja här';
-      return `<article class="card track-card"><span class="eyebrow">${esc(track.meta)}</span><h2>${esc(track.title)}</h2>
-        <p>${esc(track.intro)}</p><div class="track-foot"><a class="btn" href="#${studyRoute(track,progress.next)}">${label}</a>
-        <small>${progress.count} av ${track.lessons.length} övningar genomgångna</small></div></article>`;
-    }).join('');
-    main.innerHTML=`<div class="page">
-      <section class="traffic-hero"><div class="hero-copy"><span class="course-code">D1PT2U &nbsp; / &nbsp; 6,5 HP</span>
-        <h1>Polisiärt arbete<br><em>i trafik.</em></h1><p>Hur går du från det du ser på vägen till en bedömning som håller i rapporten?</p></div>
-        <div class="road-scene" aria-hidden="true"><div class="road-cross"></div><div class="roundabout"></div></div></section>
-      <div class="section-head"><h2>Vad pluggar du inför?</h2></div><div class="grid cols2 track-grid">${pathways}</div>
-      <div class="section-head"><h2>Träna på egen hand</h2></div><div class="card actions">
-        <a class="btn alt" href="#exam/salspass">Testa salstentans fyra mål</a><a class="btn alt" href="#cases">Öva trafikfall</a>
-        <a class="btn alt" href="#review">Repetera med minneskort</a><a class="btn alt" href="#modules">Läs ett kursområde</a></div>
-      <div class="section-head"><h2>Dina resultat per område</h2></div><div class="mastery-grid">${allTopics().map(masteryBar).join('')}</div>
-    </div>`;
-  }
+  function home(){window.CourseRoom.render('home',setActiveNav);}
   function studyPage(trackId,lessonId){
     const track=D.tracks.find(t=>t.id===trackId);
     if(!track)return home();
@@ -377,7 +359,7 @@
   function sources(){
     setActiveNav('sources');
     main.innerHTML=`<div class="page"><span class="eyebrow">D1PT2U</span><h1 class="page-title">Källor och kursmaterial</h1>
-      <div class="grid cols2"><article class="card"><h2>Underlag från kursen</h2><ul>${D.sources.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></article>
+      <div class="grid cols2"><article class="card"><h2>Underlag från kursen</h2><p><a href="#kurs/material">Öppna den samlade materialöversikten</a></p><ul>${D.sources.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></article>
       <article class="card"><h2>Författningar och myndighetskällor</h2><ul>${D.links.map(([label,url])=>`<li><a href="${esc(url)}" target="_blank" rel="noopener">${esc(label)}</a></li>`).join('')}</ul></article></div>
       <div class="card"><h2>Om frågorna</h2><p>Övningsfallen och frågorna är skrivna för repetition inför kursens examinationer. Kursmål och examinationsformer kommer från kursplanen och studiehandledningen. I Canvas finns kursens fullständiga läsanvisningar.</p></div></div>`;
   }
@@ -386,6 +368,7 @@
   function search(term){
     const t=term.trim().toLocaleLowerCase('sv');
     const items=[
+      ...window.CourseRoom.searchEntries(),
       ...D.tracks.flatMap(t=>t.lessons.map((l,i)=>({title:l.title,text:l.ask+' '+l.scene+' '+l.goal,type:t.title,route:studyRoute(t,i)}))),
       ...D.modules.map(x=>({title:x.title,text:x.sections.map(s=>s.h+' '+s.p).join(' '),type:'Kursmodul',route:'module/'+x.id})),
       ...D.laws.map(x=>({title:x.ref+' · '+x.title,text:x.text,type:'Lagrum',route:'laws'})),
@@ -398,6 +381,7 @@
   }
   function bindDynamic(){$$('[data-nav]').forEach(b=>b.onclick=()=>navigate(b.dataset.nav));$$('[data-open-module]').forEach(b=>b.onclick=()=>navigate('module/'+b.dataset.openModule));}
   function render(route){route=route||'home';
+    if(route.startsWith('kurs/'))return window.CourseRoom.render(route,setActiveNav);
     if(route==='exam/salspass')return startSalspass();
     if(route.startsWith('study/')){
       const [,trackId,step]=route.split('/');
