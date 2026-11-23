@@ -79,3 +79,24 @@ body.portal-locked{overflow:hidden}
 #portalShell[hidden]{display:none!important}
 #lockBtn{font-size:18px}
 @media(max-width:520px){.pin-gate{padding:15px}.pin-card{padding:30px 21px 25px;border-radius:22px}.pin-form input{height:56px}}
+
+/* Kursöversikt och mobil navigering */
+#mobileNav {display:none}
+.traffic-hero {position:relative;isolation:isolate;overflow:hidden;background:#123d37;color:#fff;border-radius:24px;min-height:310px;display:flex;align-items:center}
+.hero-copy {position:relative;z-index:2;width:64%;padding:clamp(1.7rem,4vw,4rem)}
+.course-code {font:bold .83rem/1.4 ui-monospace,monospace;letter-spacing:.12em;color:#deeeaa}
+.traffic-hero h1 {font:700 clamp(2.8rem,5vw,5rem)/.98 Georgia,serif;letter-spacing:-.06em;margin:.8rem 0}
+.traffic-hero h1 em {color:#e4f3a6;font-weight:500}
+.traffic-hero p {max-width:39ch;color:#f3f6ee}
+.traffic-hero .btn.gold {background:#dff493;color:#19332c}
+.traffic-hero .btn.alt {background:transparent;color:white;border:1px solid #91aa9d}
+.road-scene {position:absolute;inset:0 0 0 58%;background-color:#265449;background-image:repeating-linear-gradient(0deg,transparent 0 27px,#ffffff0c 27px 28px),repeating-linear-gradient(90deg,transparent 0 27px,#ffffff0c 27px 28px);overflow:hidden}
+.road-cross {position:absolute;left:50%;top:50%;width:250%;height:48px;background:#78978a;transform:translate(-50%,-50%) rotate(-38deg);border-block:2px solid #b0c5ae}
+.road-cross:after {content:"";position:absolute;top:50%;width:100%;border-top:2px dashed #dce7ba}
+.roundabout {position:absolute;top:50%;left:50%;width:clamp(100px,12vw,200px);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:#355a47;border:20px solid #78978a;box-shadow:0 0 0 2px #c2d6b1,inset 0 0 0 2px #b7c9a6}
+.roundabout:after {content:"";position:absolute;inset:-11px;border:2px dashed #e6edce;border-radius:50%}
+.pin-gate {background:#123d37}
+.pin-mark,.brand-mark {background:#dff493;color:#173f35}
+.search-result {width:100%;text-align:left;color:var(--ink);background:var(--surface);cursor:pointer}
+@media(max-width:1050px){#mobileNav{display:block;max-width:9rem;border:1px solid #84a49c;background:#163e39;color:white;border-radius:8px;padding:.4rem}}
+@media(max-width:700px){.hero-copy{width:100%;padding:1.6rem}.road-scene{inset:0 0 0 79%;opacity:.35}.hero-copy p{max-width:82%}.traffic-hero{min-height:300px}.top-actions{gap:1px}.icon-btn{padding:8px}.brand{gap:5px}.brand strong{font-size:.92rem}.brand-mark{width:26px;height:30px}#mobileNav{max-width:6.8rem;font-size:.85rem}.topbar{padding:0 7px}.review-shell,.quiz-shell,.page{min-width:0}.search-panel{max-width:100%}}
