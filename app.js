@@ -141,23 +141,116 @@
   function allGoalStats(){let done=0,total=0;D.learningGoals.forEach(g=>{const x=goalStats(g);done+=x.done;total+=x.total;});return {done,total,pct:pct(done,total)};}
 
 
+  // One record per exercise keeps drafts and self-assessments separate from test scores.
+  const practiceKey = (track,lesson) => 'trafik.d1pt2u.practice.'+track.id+'.'+lesson.id;
+  function practiceRecord(track,lesson){
+    return readJSON(practiceKey(track,lesson),{}) || {};
+  }
+  function trackStats(track){
+    const records=track.lessons.map(lesson=>practiceRecord(track,lesson));
+    const next=records.findIndex(r=>!r.rating);
+    const repeat=records.findIndex(r=>r.rating==='repeat');
+    return {count:records.filter(r=>r.rating).length, next:next>=0?next:repeat>=0?repeat:0};
+  }
+  function studyRoute(track,index){
+    return 'study/'+track.id+'/'+track.lessons[index].id;
+  }
   function home(){
     setActiveNav('home');
-    const next=D.modules.find(m=>!moduleMastered(m.id))||D.modules[0];
+    const pathways=D.tracks.map(track=>{
+      const progress=trackStats(track);
+      const label=progress.count===track.lessons.length?'Repetera studievägen':progress.count?'Fortsätt där du slutade':'Börja här';
+      return `<article class="card track-card"><span class="eyebrow">${esc(track.meta)}</span><h2>${esc(track.title)}</h2>
+        <p>${esc(track.intro)}</p><div class="track-foot"><a class="btn" href="#${studyRoute(track,progress.next)}">${label}</a>
+        <small>${progress.count} av ${track.lessons.length} övningar genomgångna</small></div></article>`;
+    }).join('');
     main.innerHTML=`<div class="page">
       <section class="traffic-hero"><div class="hero-copy"><span class="course-code">D1PT2U &nbsp; / &nbsp; 6,5 HP</span>
-        <h1>Polisiärt arbete<br><em>i trafik.</em></h1><p>Öva på att bedöma en körning, välja lagrum och dokumentera vad som hände.</p>
-        <div class="actions"><button class="btn gold" data-nav="exam">Starta tentaträning</button><button class="btn alt" data-nav="cases">Välj ett trafikfall</button></div></div>
-        <div class="road-scene" aria-hidden="true"><div class="road-cross"></div><div class="roundabout"></div></div>
-      </section>
-      <div class="section-head"><div><h2>Ditt nästa pass</h2></div></div>
-      <div class="grid cols3">
-        <article class="card"><span class="eyebrow">Kursmodul</span><h3>${esc(next.title)}</h3><p>${esc(next.intro)}</p><button class="btn small" data-nav="module/${next.id}">Öppna modulen</button></article>
-        <article class="card"><span class="eyebrow">Repetition</span><h3>Dagens minneskort</h3><p>${reviewStats().due} kort väntar på repetition. Fyll på med nya frågor från kursen.</p><button class="btn small" data-nav="review">Repetera kort</button></article>
-        <article class="card"><span class="eyebrow">Individuell salstenta · 3,5 hp</span><h3>Vad examineras?</h3><p>Trafikbrottslagen, trafikförfattningar, rapportering och åtgärder vid trafikolycka.</p><button class="btn small" data-nav="goals">Se kursmålen</button></article>
-      </div>
+        <h1>Polisiärt arbete<br><em>i trafik.</em></h1><p>Hur går du från det du ser på vägen till en bedömning som håller i rapporten?</p></div>
+        <div class="road-scene" aria-hidden="true"><div class="road-cross"></div><div class="roundabout"></div></div></section>
+      <div class="section-head"><h2>Vad pluggar du inför?</h2></div><div class="grid cols2 track-grid">${pathways}</div>
+      <div class="section-head"><h2>Träna på egen hand</h2></div><div class="card actions">
+        <a class="btn alt" href="#exam/salspass">Testa salstentans fyra mål</a><a class="btn alt" href="#cases">Öva trafikfall</a>
+        <a class="btn alt" href="#review">Repetera med minneskort</a><a class="btn alt" href="#modules">Läs ett kursområde</a></div>
       <div class="section-head"><h2>Dina resultat per område</h2></div><div class="mastery-grid">${allTopics().map(masteryBar).join('')}</div>
-    </div>`;bindDynamic();
+    </div>`;
+  }
+  function studyPage(trackId,lessonId){
+    const track=D.tracks.find(t=>t.id===trackId);
+    if(!track)return home();
+    const index=track.lessons.findIndex(l=>l.id===lessonId);
+    if(index<0){navigate(studyRoute(track,trackStats(track).next));return;}
+    setActiveNav('study/'+track.id);
+    const lesson=track.lessons[index], record=practiceRecord(track,lesson);
+    const steps=track.lessons.map((l,i)=>{
+      const rating=practiceRecord(track,l).rating;
+      const status=rating==='repeat'?'Repetera':rating==='ready'?'Genomgången':'';
+      return `<li><a href="#${studyRoute(track,i)}" ${i===index?'aria-current="step"':''}>${esc(l.title)}${status?`<small>${status}</small>`:''}</a></li>`;
+    }).join('');
+    const next=index+1<track.lessons.length?studyRoute(track,index+1):'study/'+track.id+'/resultat';
+    const source=lesson.link===undefined?'':` · <a href="${esc(D.links[lesson.link][1])}" target="_blank" rel="noopener">Öppna källan</a>`;
+    main.innerHTML=`<div class="page learning-view"><a class="back-link" href="#home">Till kursöversikten</a>
+      <p class="eyebrow">${esc(track.title)} · Övning ${index+1} av ${track.lessons.length}</p>
+      <h1 class="page-title">${esc(lesson.title)}</h1><p class="learning-goals">${[lesson.goal,...(lesson.also||[])].map(id=>esc(goalLabel(id))).join(' · ')}</p>
+      <div class="learning-layout"><div class="learning-body">
+        <section class="card field-example"><h2>Följ resonemanget</h2><p class="field-scene">${esc(lesson.scene)}</p><p>${esc(lesson.example)}</p></section>
+        <section class="card field-try"><h2>Nu ändras situationen</h2><p>${esc(lesson.change)}</p>
+          <label for="practiceDraft">${esc(lesson.ask)}</label><textarea rows="4" id="practiceDraft" placeholder="Skriv stödord eller resonera högt.">${esc(record.text||'')}</textarea>
+          <details class="hint"><summary>Ge mig en ledtråd</summary><p>${esc(lesson.hint)}</p></details>
+          <button class="btn" id="showReason" aria-controls="reasonPanel" aria-expanded="false">Jämför ditt resonemang</button>
+          <div id="reasonPanel" hidden><h3>Stäm av ditt svar</h3><ul>${lesson.compare.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>
+          <p><strong>Kunde du motivera din bedömning?</strong></p><div class="actions">
+            <button class="btn alt" data-assess="repeat">Jag vill repetera</button><button class="btn alt" data-assess="ready">Jag kan förklara</button></div>
+          <p role="status" id="assessStatus"></p><a class="btn" href="#${next}">${index+1<track.lessons.length?'Nästa övning':'Se min sammanfattning'}</a></div>
+        </section><p class="learning-source">${esc(lesson.source)}${source}</p>
+      </div><aside class="card learning-steps"><h2>Din studieväg</h2><ol>${steps}</ol>
+        <a href="#module/${lesson.module}">Läs mer om ${esc(moduleById(lesson.module).title.toLocaleLowerCase('sv'))}</a></aside></div></div>`;
+    const key=practiceKey(track,lesson);
+    const save=patch=>persist(key,{...practiceRecord(track,lesson),...patch});
+    const show=$('#showReason'), panel=$('#reasonPanel');
+    function assessment(){
+      const rating=practiceRecord(track,lesson).rating;
+      $$('[data-assess]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.assess===rating)));
+      $('#assessStatus').textContent=rating==='ready'?'Sparat som genomgången.':rating==='repeat'?'Sparat för repetition.':'';
+    }
+    function reveal(open){
+      panel.hidden=!open;show.setAttribute('aria-expanded',String(open));
+      show.textContent=open?'Dölj jämförelsen':'Jämför ditt resonemang';
+    }
+    $('#practiceDraft').oninput=e=>save({text:e.target.value});
+    show.onclick=()=>reveal(panel.hidden);
+    $$('[data-assess]').forEach(b=>b.onclick=()=>{
+      save({rating:b.dataset.assess});assessment();
+      const current=$('.learning-steps [aria-current="step"]');
+      let tag=current.querySelector('small');
+      if(!tag){tag=document.createElement('small');current.append(tag);}
+      tag.textContent=b.dataset.assess==='repeat'?'Repetera':'Genomgången';
+    });
+    assessment();
+  }
+  function trackSummary(track){
+    setActiveNav('study/'+track.id);
+    const stats=trackStats(track);
+    const list=track.lessons.map((lesson,i)=>{
+      const rating=practiceRecord(track,lesson).rating;
+      return `<li><a href="#${studyRoute(track,i)}">${esc(lesson.title)}</a> · ${rating==='repeat'?'Repetera':rating==='ready'?'Kan förklara':'Ej självskattad'}</li>`;
+    }).join('');
+    main.innerHTML=`<div class="page learning-view"><a class="back-link" href="#home">Till kursöversikten</a>
+      <p class="eyebrow">${esc(track.title)}</p><h1 class="page-title">Din sammanfattning</h1>
+      <section class="card"><h2>${stats.count} av ${track.lessons.length} övningar självskattade</h2>
+      <ul class="summary-lessons">${list}</ul>
+      <div class="actions">${track.id==='salstenta'?'<a class="btn" href="#exam/salspass">Testa salstentans fyra mål</a>':'<a class="btn" href="#notes">Samla frågor till basgruppen</a>'}
+      <a class="btn alt" href="#${studyRoute(track,stats.next)}">Återvänd till övningarna</a></div></section>
+      ${track.id==='salstenta'?`<section class="card exam-practice"><h2>Kan du använda samma metod i ett annat ärende?</h2>
+        <p>I cirkulationsplatsen prövade du vårdslöshet. Här ändras det som måste bevisas.</p>
+        <ul class="summary-lessons"><li><a href="#case/kvall">Föraren vid den parkerade bilen</a> · Rattfylleri. Knyt prov och uppgifter om alkoholintag till rätt person och färd.</li>
+        <li><a href="#case/lanebil">Lånebilen på riksvägen</a> · Olovlig körning. Skilj förarens behörighet, uppsåt och utlånarens ansvar åt.</li>
+        <li><a href="#module/olycka">En förare lämnar olycksplatsen</a> · Identifiera skyldigheterna efter olyckan och pröva 5 § TBL.</li></ul></section>`:''}</div>`;
+  }
+  function startSalspass(){
+    const goals=D.learningGoals.filter(g=>g.examined.includes('Salstentamen'));
+    const items=shuffle(goals.flatMap(g=>shuffle(D.quiz.filter(q=>q.goal===g.id)).slice(0,2)));
+    startExam({topic:'Alla',mode:'training',time:0,len:'all',items});
   }
   function masteryBar(topic){const m=masteryFor(topic);return `<div class="mastery-row"><div><strong>${esc(topicMeta(topic).label)}</strong><small>${m.total?`${m.correct}/${m.total} rätt`:'ej testad'}</small></div><div class="mastery-track"><span style="width:${m.total?Math.max(4,m.pct):0}%"></span></div><b>${m.total?m.pct+'%':'—'}</b></div>`;}
 
@@ -245,21 +338,21 @@
   function ratingButtons(){return `<div class="rating-grid"><button data-rating="again"><b>Igen</b><small>≈ 10 min</small></button><button data-rating="hard"><b>Svårt</b><small>≈ 1 dag</small></button><button data-rating="good"><b>Bra</b><small>≈ 2+ dagar</small></button><button data-rating="easy"><b>Lätt</b><small>≈ 5+ dagar</small></button></div>`;}
   function finishReview(){const n=state.reviewRun?.items.length||0;state.reviewRun=null;main.innerHTML=`<div class="page finish-screen"><span class="eyebrow">Repetition klar</span><h1>${n} kort genomförda</h1><p>Intervallen är uppdaterade. Nästa repetition kommer automatiskt när korten förfaller.</p><div class="actions"><button class="btn" data-nav="review">Se repetitionsöversikten</button><button class="btn alt" data-nav="home">Till dashboard</button></div></div>`;bindDynamic();}
 
-  function exam(){setActiveNav('exam');clearTimers();const topicOptions=['Alla',...allTopics()];const pref=state.prefExamTopic||'Alla';state.prefExamTopic=null;const last=state.exams[0];const inspired=D.quiz.filter(q=>q.origin==='situation').length;main.innerHTML=`<div class="page"><section class="hero compact-hero"><div><span class="eyebrow">${D.quiz.length} frågor i frågebanken · ${inspired} situationsfrågor</span><h1>Tentamensmotor</h1><p>Öva på en fråga i taget med direkt återkoppling eller välj tentamensläge för att få resultat när du lämnar in. <strong>Flersvarsfrågor stöds</strong> och rättas strikt: alla korrekta alternativ måste väljas.</p></div>${heroArt('law.svg','Illustration för tentamen och juridik')}</section><div class="exam-setup"><section class="card"><h3>1. Frågor</h3><div class="segmented" id="examLength"><button data-val="10">10</button><button class="active" data-val="20">20</button><button data-val="30">30</button><button data-val="all">Alla</button></div></section><section class="card"><h3>2. Område</h3><select id="examTopic">${topicOptions.map(t=>`<option value="${esc(t)}" ${t===pref?'selected':''}>${t==='Alla'?'Blandat':esc(topicMeta(t).label)}</option>`).join('')}</select><label class="checkline"><input type="checkbox" id="weakFirst"> Prioritera svaga områden</label></section><section class="card"><h3>3. Frågestil</h3><select id="examSource"><option value="all">Blanda allt</option><option value="situation">Situationsfråga</option><option value="course">Kunskapsfrågor</option></select><small class="subtle">Frågorna är framtagna för självstudier utifrån kursmaterialet.</small></section><section class="card"><h3>4. Läge</h3><div class="segmented" id="examMode"><button class="active" data-val="exam">Tentamen</button><button data-val="training">Träning</button></div></section><section class="card"><h3>5. Tid</h3><div class="segmented" id="examTime"><button class="active" data-val="0">Ingen</button><button data-val="2700">45 min</button><button data-val="3600">60 min</button><button data-val="5400">90 min</button></div></section></div><div class="actions"><button class="btn gold big" id="startExam">Starta testet</button>${Object.keys(state.wrong).length?`<button class="btn alt" id="retryWrong">Träna mina ${Object.keys(state.wrong).length} felfrågor</button>`:''}</div>${last?`<div class="callout"><strong>Senaste test:</strong> ${last.score}/${last.total} (${last.pct}%) · ${new Date(last.at).toLocaleString('sv-SE')}</div>`:''}<div class="section-head"><div><span class="eyebrow">Ditt resultat per område</span><h2>Kunskapskartan</h2></div></div><div class="mastery-grid">${allTopics().map(masteryBar).join('')}</div></div>`;
+  function exam(){setActiveNav('exam');clearTimers();const topicOptions=['Alla',...allTopics()];const pref=state.prefExamTopic||'Alla';state.prefExamTopic=null;const last=state.exams[0];const inspired=D.quiz.filter(q=>q.origin==='situation').length;main.innerHTML=`<div class="page"><section class="hero compact-hero"><div><span class="eyebrow">${D.quiz.length} frågor i frågebanken · ${inspired} situationsfrågor</span><h1>Tentamensmotor</h1><p>Öva på en fråga i taget med direkt återkoppling eller välj tentamensläge för att få resultat när du lämnar in. <strong>Flersvarsfrågor stöds</strong> och rättas strikt: alla korrekta alternativ måste väljas.</p></div>${heroArt('law.svg','Illustration för tentamen och juridik')}</section><div class="card exam-practice"><h2>Kortpass inför salstentan</h2><p>Åtta frågor med direkt återkoppling. Två per mål inom trafikbrottslagen, trafikförfattningar, rapportering och trafikolyckor.</p><a class="btn" href="#exam/salspass">Starta kortpasset</a></div><div class="exam-setup"><section class="card"><h3>1. Frågor</h3><div class="segmented" id="examLength"><button data-val="10">10</button><button class="active" data-val="20">20</button><button data-val="30">30</button><button data-val="all">Alla</button></div></section><section class="card"><h3>2. Område</h3><select id="examTopic">${topicOptions.map(t=>`<option value="${esc(t)}" ${t===pref?'selected':''}>${t==='Alla'?'Blandat':esc(topicMeta(t).label)}</option>`).join('')}</select><label class="checkline"><input type="checkbox" id="weakFirst"> Prioritera svaga områden</label></section><section class="card"><h3>3. Frågestil</h3><select id="examSource"><option value="all">Blanda allt</option><option value="situation">Situationsfråga</option><option value="course">Kunskapsfrågor</option></select><small class="subtle">Frågorna är framtagna för självstudier utifrån kursmaterialet.</small></section><section class="card"><h3>4. Läge</h3><div class="segmented" id="examMode"><button class="active" data-val="exam">Tentamen</button><button data-val="training">Träning</button></div></section><section class="card"><h3>5. Tid</h3><div class="segmented" id="examTime"><button class="active" data-val="0">Ingen</button><button data-val="2700">45 min</button><button data-val="3600">60 min</button><button data-val="5400">90 min</button></div></section></div><div class="actions"><button class="btn gold big" id="startExam">Starta testet</button>${Object.keys(state.wrong).length?`<button class="btn alt" id="retryWrong">Träna mina ${Object.keys(state.wrong).length} felfrågor</button>`:''}</div>${last?`<div class="callout"><strong>Senaste test:</strong> ${last.score}/${last.total} (${last.pct}%) · ${new Date(last.at).toLocaleString('sv-SE')}</div>`:''}<div class="section-head"><div><span class="eyebrow">Ditt resultat per område</span><h2>Kunskapskartan</h2></div></div><div class="mastery-grid">${allTopics().map(masteryBar).join('')}</div></div>`;
     setupSegment('#examLength');setupSegment('#examMode');setupSegment('#examTime');$('#startExam').onclick=()=>{const len=$('#examLength .active').dataset.val,topic=$('#examTopic').value,mode=$('#examMode .active').dataset.val,time=+$('#examTime .active').dataset.val,weak=$('#weakFirst').checked,source=$('#examSource').value;startExam({len,topic,mode,time,weak,source});};const rw=$('#retryWrong');if(rw)rw.onclick=()=>startWrongExam();bindDynamic();}
 
   function buildExamPool(topic,weak,source='all'){let pool=D.quiz.map(q=>({...q,topic:inferTopic(q)}));if(topic!=='Alla')pool=pool.filter(q=>q.topic===topic);if(source==='situation')pool=pool.filter(q=>q.origin==='situation');if(source==='course')pool=pool.filter(q=>q.origin!=='situation');if(weak&&topic==='Alla'){const order=new Map(allTopics().sort((a,b)=>masteryFor(a).pct-masteryFor(b).pct).map((t,i)=>[t,i]));pool=shuffle(pool).sort((a,b)=>(order.get(a.topic)||0)-(order.get(b.topic)||0));}else pool=shuffle(pool);return pool;}
-  function startExam(cfg){setActiveNav('exam');let pool=buildExamPool(cfg.topic,cfg.weak,cfg.source||'all'),n=cfg.len==='all'?pool.length:Math.min(+cfg.len,pool.length);if(!n){toast('Inga frågor matchar filtret.');return exam();}const items=pool.slice(0,n);state.exam={items,answers:items.map(q=>isMulti(q)?[]:null),i:0,mode:cfg.mode,duration:cfg.time,ends:cfg.time?Date.now()+cfg.time*1000:0,feedback:false};renderExamQuestion();}
+  function startExam(cfg){setActiveNav('exam');let pool=cfg.items||buildExamPool(cfg.topic,cfg.weak,cfg.source||'all'),n=cfg.len==='all'?pool.length:Math.min(+cfg.len,pool.length);if(!n){toast('Inga frågor matchar filtret.');return exam();}const items=pool.slice(0,n);state.exam={items,answers:items.map(q=>isMulti(q)?[]:null),i:0,mode:cfg.mode,duration:cfg.time,ends:cfg.time?Date.now()+cfg.time*1000:0,feedback:false};renderExamQuestion();}
   function startWrongExam(){const wrongQs=Object.values(state.wrong);let items=wrongQs.map(w=>D.quiz.find(q=>q.q===w.q)).filter(Boolean).map(q=>({...q,topic:inferTopic(q)}));if(!items.length){toast('Fellistan är redan tom.');return;}items=shuffle(items);state.exam={items,answers:items.map(q=>isMulti(q)?[]:null),i:0,mode:'training',duration:0,ends:0,feedback:false};renderExamQuestion();}
   function startExamTimer(){if(!state.exam?.ends)return;const tick=()=>{const el=$('#examTimer');if(!el)return;const sec=Math.max(0,Math.floor((state.exam.ends-Date.now())/1000)),m=Math.floor(sec/60),s=sec%60;el.textContent=`${m}:${String(s).padStart(2,'0')}`;if(sec<=0){clearTimers();finishExam(true);}};tick();const id=setInterval(tick,1000);state.timers.push(id);}
-  function renderExamQuestion(){clearTimers();const z=state.exam;if(!z)return exam();if(z.i>=z.items.length)return finishExam(false);const q=z.items[z.i],selected=z.answers[z.i];const picked=i=>isMulti(q)?selected.includes(i):selected===i;const cls=i=>z.feedback?(correctChoices(q).includes(i)?'correct':(picked(i)?'wrong':'')):(picked(i)?'selected':'');main.innerHTML=`<div class="page quiz-shell"><div class="quiz-top"><span class="eyebrow">${z.mode==='exam'?'Tentamensläge':'Träningsläge'} · ${esc(topicMeta(q.topic).label)}${q.origin==='situation'?' · Situationsfråga':''}</span><div><strong>${z.i+1} / ${z.items.length}</strong>${z.ends?`<span class="timer" id="examTimer"></span>`:''}</div></div><div class="quiz-progress"><span style="width:${z.i/z.items.length*100}%"></span></div><h2 class="question">${esc(q.q)}</h2>${isMulti(q)?`<div class="callout mini"><strong>Flersvarsfråga:</strong> välj ${q.c.length} alternativ. Alla rätt krävs för poäng.</div>`:''}<div class="answers">${q.a.map((a,i)=>`<button class="answer ${cls(i)}" data-answer="${i}" ${z.feedback?'disabled':''}>${picked(i)?'✓ ':''}${String.fromCharCode(65+i)}. ${esc(a)}</button>`).join('')}</div><div id="examFeedback">${z.feedback?trainingFeedback(q,selected):''}</div><div class="exam-nav">${z.i>0&&!z.feedback&&z.mode==='exam'?'<button class="btn alt" id="prevExam">← Föregående</button>':'<span></span>'}${z.mode==='training'&&isMulti(q)&&!z.feedback?'<button class="btn alt" id="checkExamMulti">Kontrollera svar</button>':''}<button class="btn" id="nextExam" ${selectionEmpty(q,selected)|| (z.mode==='training'&&isMulti(q)&&!z.feedback)?'disabled':''}>${z.feedback?'Nästa fråga →':z.i===z.items.length-1?'Lämna in':'Nästa →'}</button></div></div>`;
+  function renderExamQuestion(){clearTimers();const z=state.exam;if(!z)return exam();if(z.i>=z.items.length)return finishExam(false);const q=z.items[z.i],selected=z.answers[z.i];const picked=i=>isMulti(q)?selected.includes(i):selected===i;const cls=i=>z.feedback?(correctChoices(q).includes(i)?'correct':(picked(i)?'wrong':'')):(picked(i)?'selected':'');main.innerHTML=`<div class="page quiz-shell"><div class="quiz-top"><span class="eyebrow">${z.mode==='exam'?'Tentamensläge':'Träningsläge'} · ${esc(topicMeta(q.topic).label)} · Mål ${esc(q.goal)}${q.origin==='situation'?' · Situationsfråga':''}</span><div><strong>${z.i+1} / ${z.items.length}</strong>${z.ends?`<span class="timer" id="examTimer"></span>`:''}</div></div><div class="quiz-progress"><span style="width:${z.i/z.items.length*100}%"></span></div><h2 class="question">${esc(q.q)}</h2>${isMulti(q)?`<div class="callout mini"><strong>Flersvarsfråga:</strong> välj ${q.c.length} alternativ. Alla rätt krävs för poäng.</div>`:''}<div class="answers">${q.a.map((a,i)=>`<button class="answer ${cls(i)}" data-answer="${i}" ${z.feedback?'disabled':''}>${picked(i)?'✓ ':''}${String.fromCharCode(65+i)}. ${esc(a)}</button>`).join('')}</div><div id="examFeedback">${z.feedback?trainingFeedback(q,selected):''}</div><div class="exam-nav">${z.i>0&&!z.feedback&&z.mode==='exam'?'<button class="btn alt" id="prevExam">← Föregående</button>':'<span></span>'}${z.mode==='training'&&isMulti(q)&&!z.feedback?'<button class="btn alt" id="checkExamMulti">Kontrollera svar</button>':''}<button class="btn" id="nextExam" ${selectionEmpty(q,selected)|| (z.mode==='training'&&isMulti(q)&&!z.feedback)?'disabled':''}>${z.feedback?'Nästa fråga →':z.i===z.items.length-1?'Lämna in':'Nästa →'}</button></div></div>`;
     $$('.answer').forEach(b=>b.onclick=()=>{if(z.feedback)return;const i=+b.dataset.answer;if(isMulti(q)){const arr=z.answers[z.i];z.answers[z.i]=arr.includes(i)?arr.filter(x=>x!==i):[...arr,i];renderExamQuestion();}else{z.answers[z.i]=i;if(z.mode==='training'){z.feedback=true;renderExamQuestion();}else renderExamQuestion();}});
     const check=$('#checkExamMulti');if(check)check.onclick=()=>{if(selectionEmpty(q,z.answers[z.i]))return;z.feedback=true;renderExamQuestion();};
     const nx=$('#nextExam');nx.onclick=()=>{if(selectionEmpty(q,z.answers[z.i]))return;if(z.mode==='training'&&z.feedback){z.feedback=false;z.i++;renderExamQuestion();}else if(z.i===z.items.length-1){finishExam(false);}else{z.i++;renderExamQuestion();}};const pv=$('#prevExam');if(pv)pv.onclick=()=>{z.i--;renderExamQuestion();};startExamTimer();}
 
   function trainingFeedback(q,selected){const ok=isCorrectAnswer(q,selected);return `<div class="explain ${ok?'ok':'bad'}"><strong>${ok?'✓ Rätt':'↺ Inte riktigt'}</strong><p>${esc(q.e)}</p>${!ok?`<p><strong>Rätt svar:</strong> ${esc(correctAnswerText(q))}</p>`:''}<small>Kurskälla: ${esc(q.source||topicMeta(q.topic).source)}</small></div>`;}
 
-  function finishExam(timedOut){clearTimers();const z=state.exam;if(!z)return exam();let score=0;const breakdown={};z.items.forEach((q,i)=>{const ok=isCorrectAnswer(q,z.answers[i]);if(ok)score++;const t=q.topic||inferTopic(q);breakdown[t]=breakdown[t]||{c:0,n:0};breakdown[t].n++;if(ok)breakdown[t].c++;markQuestionResult(q,ok);});const p=pct(score,z.items.length),rec={at:Date.now(),score,total:z.items.length,pct:p,mode:z.mode,timedOut};state.exams.unshift(rec);state.exams=state.exams.slice(0,20);persist(LS.exams,state.exams);const wrong=z.items.map((q,i)=>({q,sel:z.answers[i],ok:isCorrectAnswer(q,z.answers[i])})).filter(x=>!x.ok);state.exam=null;main.innerHTML=`<div class="page results-page"><span class="eyebrow">${timedOut?'Tiden gick ut':'Test inlämnat'}</span><div class="score-hero"><div class="score-ring" style="--score:${p*3.6}deg"><span><b>${p}%</b><small>${score}/${rec.total}</small></span></div><div><h1>${p>=80?'Stabil nivå.':p>=60?'Bra – nu syns luckorna.':'Bygg grunden och testa igen.'}</h1><p>Resultatet har sparats lokalt och påverkar dashboardens rekommendationer.</p></div></div><div class="section-head"><div><span class="eyebrow">Per område</span><h2>Resultatprofil</h2></div></div><div class="mastery-grid">${Object.entries(breakdown).map(([t,b])=>`<div class="mastery-row"><div><strong>${esc(topicMeta(t).label)}</strong><small>${b.c}/${b.n} rätt</small></div><div class="mastery-track"><span style="width:${pct(b.c,b.n)}%"></span></div><b>${pct(b.c,b.n)}%</b></div>`).join('')}</div>${wrong.length?`<div class="section-head"><div><span class="eyebrow">Återkoppling</span><h2>Frågor att repetera</h2></div><p>${wrong.length} fel / obesvarade</p></div><div class="wrong-list">${wrong.map((x,i)=>`<details class="card"><summary><span>${i+1}</span>${esc(x.q.q)}</summary><div class="wrong-body"><p><strong>Ditt svar:</strong> ${esc(answerText(x.q,x.sel))}</p><p><strong>Rätt svar:</strong> ${esc(correctAnswerText(x.q))}</p><p>${esc(x.q.e)}</p><small>Kurskälla: ${esc(x.q.source||topicMeta(x.q.topic).source)}</small></div></details>`).join('')}</div>`:`<div class="callout"><strong>Alla rätt.</strong> Fellistan har inget nytt från den här rundan.</div>`}<div class="actions"><button class="btn" data-nav="exam">Ny tentamen</button><button class="btn alt" data-nav="review">Repetera kort</button><button class="btn alt" data-nav="home">Dashboard</button></div></div>`;bindDynamic();}
+  function finishExam(timedOut){clearTimers();const z=state.exam;if(!z)return exam();let score=0;const breakdown={};z.items.forEach((q,i)=>{const ok=isCorrectAnswer(q,z.answers[i]);if(ok)score++;const t=q.topic||inferTopic(q);breakdown[t]=breakdown[t]||{c:0,n:0};breakdown[t].n++;if(ok)breakdown[t].c++;markQuestionResult(q,ok);updateGoalEvidence(q.goal,ok);});const p=pct(score,z.items.length),rec={at:Date.now(),score,total:z.items.length,pct:p,mode:z.mode,timedOut};state.exams.unshift(rec);state.exams=state.exams.slice(0,20);persist(LS.exams,state.exams);const wrong=z.items.map((q,i)=>({q,sel:z.answers[i],ok:isCorrectAnswer(q,z.answers[i])})).filter(x=>!x.ok);state.exam=null;main.innerHTML=`<div class="page results-page"><span class="eyebrow">${timedOut?'Tiden gick ut':'Test inlämnat'}</span><div class="score-hero"><div class="score-ring" style="--score:${p*3.6}deg"><span><b>${p}%</b><small>${score}/${rec.total}</small></span></div><div><h1>${p>=80?'Stabil nivå.':p>=60?'Bra – nu syns luckorna.':'Bygg grunden och testa igen.'}</h1><p>Resultatet är sparat. Öppna en missad fråga för att se förklaringen och fortsätta i rätt kursområde.</p></div></div><div class="section-head"><div><span class="eyebrow">Per område</span><h2>Resultatprofil</h2></div></div><div class="mastery-grid">${Object.entries(breakdown).map(([t,b])=>`<div class="mastery-row"><div><strong>${esc(topicMeta(t).label)}</strong><small>${b.c}/${b.n} rätt</small></div><div class="mastery-track"><span style="width:${pct(b.c,b.n)}%"></span></div><b>${pct(b.c,b.n)}%</b></div>`).join('')}</div>${wrong.length?`<div class="section-head"><div><span class="eyebrow">Återkoppling</span><h2>Frågor att repetera</h2></div><p>${wrong.length} fel / obesvarade</p></div><div class="wrong-list">${wrong.map((x,i)=>`<details class="card"><summary><span>${i+1}</span>${esc(x.q.q)}</summary><div class="wrong-body"><p><strong>Ditt svar:</strong> ${esc(answerText(x.q,x.sel))}</p><p><strong>Rätt svar:</strong> ${esc(correctAnswerText(x.q))}</p><p>${esc(x.q.e)}</p><small>Kurskälla: ${esc(x.q.source||topicMeta(x.q.topic).source)}</small><p><a href="#module/${D.modules.find(m=>m.title===x.q.topic)?.id}">Repetera kursområdet</a></p></div></details>`).join('')}</div>`:`<div class="callout"><strong>Alla rätt.</strong> Fellistan har inget nytt från den här rundan.</div>`}<div class="actions"><button class="btn" data-nav="exam">Ny tentamen</button><button class="btn alt" data-nav="review">Repetera kort</button><button class="btn alt" data-nav="home">Dashboard</button></div></div>`;bindDynamic();}
 
   function cases(){setActiveNav('cases');main.innerHTML=`<div class="page"><section class="hero compact-hero"><div><span class="eyebrow">Flerstegsbeslut</span><h1>Case-tränare</h1><p>Varje case går i flera steg. Ta ställning till vad du behöver veta, vilket lagrum som passar och vad patrullen ska dokumentera.</p></div>${heroArt('dialogue.svg','Illustration av polisiärt samtal')}</section><div class="grid cols2">${D.caseScenarios.map(c=>{const h=state.caseHistory[c.id];return `<article class="card hover case-launch" data-open-case="${c.id}"><div class="tagrow"><span class="tag">${esc(c.difficulty)}</span><span class="tag">${c.steps.length} steg</span>${h?`<span class="tag success">Bäst ${h.best}/${c.steps.length}</span>`:''}</div><h3>${esc(c.title)}</h3><p>${esc(c.scenario)}</p><div class="case-facts">${c.facts.slice(0,4).map(f=>`<div class="case-fact">${esc(f)}</div>`).join('')}</div><button class="btn small">${h?'Kör igen':'Starta case'} →</button></article>`}).join('')}</div></div>`;$$('[data-open-case]').forEach(b=>b.onclick=()=>navigate('case/'+b.dataset.openCase));}
   function caseRun(id){setActiveNav('cases');const c=D.caseScenarios.find(x=>x.id===id);if(!c)return cases();if(!state.caseRun||state.caseRun.id!==id)state.caseRun={id,step:0,score:0,answered:false};renderCaseStep(c);}
@@ -293,6 +386,7 @@
   function search(term){
     const t=term.trim().toLocaleLowerCase('sv');
     const items=[
+      ...D.tracks.flatMap(t=>t.lessons.map((l,i)=>({title:l.title,text:l.ask+' '+l.scene+' '+l.goal,type:t.title,route:studyRoute(t,i)}))),
       ...D.modules.map(x=>({title:x.title,text:x.sections.map(s=>s.h+' '+s.p).join(' '),type:'Kursmodul',route:'module/'+x.id})),
       ...D.laws.map(x=>({title:x.ref+' · '+x.title,text:x.text,type:'Lagrum',route:'laws'})),
       ...D.caseScenarios.map(x=>({title:x.title,text:x.scenario,type:'Trafikfall',route:'case/'+x.id})),
@@ -303,7 +397,15 @@
     $$('[data-result]').forEach(b=>b.onclick=()=>{searchClose();navigate(b.dataset.result);});
   }
   function bindDynamic(){$$('[data-nav]').forEach(b=>b.onclick=()=>navigate(b.dataset.nav));$$('[data-open-module]').forEach(b=>b.onclick=()=>navigate('module/'+b.dataset.openModule));}
-  function render(route){route=route||'home';if(route.startsWith('module/'))return modulePage(route.split('/')[1]);if(route.startsWith('case/'))return caseRun(route.split('/')[1]);if(route==='flashcards')route='review';if(route==='quiz')route='exam';const fn={home,modules,laws,goals,review,exam,cases,notes,sources}[route]||home;fn();}
+  function render(route){route=route||'home';
+    if(route==='exam/salspass')return startSalspass();
+    if(route.startsWith('study/')){
+      const [,trackId,step]=route.split('/');
+      const track=D.tracks.find(t=>t.id===trackId);
+      if(track && step==='resultat')return trackSummary(track);
+      return studyPage(trackId,step);
+    }
+    if(route.startsWith('module/'))return modulePage(route.split('/')[1]);if(route.startsWith('case/'))return caseRun(route.split('/')[1]);if(route==='flashcards')route='review';if(route==='quiz')route='exam';const fn={home,modules,laws,goals,review,exam,cases,notes,sources}[route]||home;fn();}
 
   $('#mobileNav').onchange=e=>{navigate(e.target.value);};
   bindDynamic();

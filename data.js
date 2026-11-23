@@ -9,6 +9,7 @@ const trafficCourse = (() => {
         ['Välj åtgärd och följ upp','Koppla insatsen till den troliga orsaken. Hastighetskontroller kan kombineras med att väghållaren ser över utformningen. Jämför hastigheter och konflikter före och efter vid liknande tider. Antal böter berättar främst hur mycket som upptäcktes.'],
         ['Bemötande och källor','Förklara kontrollens syfte för föraren och låt personen beskriva situationen. I en skriftlig analys kan en boendes upplevelse, en mätning och polisens uppdrag ge tre olika perspektiv. Ange källa för varje uppgift och motivera din slutsats.']
       ], source:['Kursplan D1PT2U','Studiehandledning Trafik Distans','Polismyndigheten · Trafik'],
+      questionGoals:["1.1", "1.2", "1.2", "2.4"],
       prompts:[
         ['Vad är Nollvisionens långsiktiga mål?','Ingen ska omkomma eller skadas allvarligt i trafiken.','Antalet utfärdade ordningsböter ska minska varje år.','Alla trafikförseelser ska upptäckas.','Målet gäller följderna för människors liv och hälsa.'],
         ['Vilken jämförelse visar bäst om hastigheterna vid skolan har förändrats?','Mätningar före och efter vid jämförbara tider.','Antal stoppade förare under insatsen.','Antal poliser som deltagit.','Jämför det utfall som insatsen var tänkt att påverka.'],
@@ -22,6 +23,7 @@ const trafficCourse = (() => {
         ['Identifiera förare och fordon','Knyt personen till körningen. Jämför behörigheten med det faktiska fordonet. Beskriv en synlig brist, vem som observerade den och hur den kunde konstateras. Kontrollens omfattning och din behörighet har betydelse för rapporteringen.'],
         ['Förklara nästa steg','Säg vad kontrollen avser och ge föraren utrymme att svara. Ett utländskt körkort väcker en fråga om behörighetens giltighet i Sverige. En inre utlänningskontroll kräver en egen prövning enligt utlänningslagen.']
       ],source:['Trafikjuridik 1','Föreläsning om ordningsbot','FAP 261-1','Polislagen 22 §'],
+      questionGoals:["1.4", "2.2", "1.4", "2.1"],
       prompts:[
         ['Vilken punkt i PL 22 § gäller ett stopp för föreskriven förar- eller fordonskontroll?','Punkt 4.','Punkt 1 om anledning att anta brott.','Punkt 3 om husrannsakan i fordonet.','Kontrollsyftet omfattas av punkt 4.'],
         ['Föraren visar ett giltigt körkort. Vad återstår att kontrollera när behörigheten är tveksam?','Om behörigheten omfattar just detta fordon och eventuella villkor.','Om föraren äger fordonet.','Om en passagerare har rätt behörighet.','Fordonets kategori och villkoren bestämmer vad föraren får köra.'],
@@ -35,6 +37,7 @@ const trafficCourse = (() => {
         ['Pröva graden av oaktsamhet','För vårdslöshet i trafik krävs en väsentlig brist i omsorg och varsamhet. Beskriv vad föraren kunde se, hastighet, avstånd och tid att reagera. Även en farlig manöver utan kollision kan omfattas.'],
         ['Skada och risk','Pröva eventuell personskada och orsakssamband separat. För grov vårdslöshet krävs förande av motordrivet fordon eller spårvagn och grov oaktsamhet eller uppenbar likgiltighet för andra människors liv eller egendom.']
       ],source:['Trafikjuridik 1','RäV 2023:18','TrF 3 kap. 22 §','TBL 1–2 §§'],
+      questionGoals:["1.4", "1.3", "1.3", "1.3"],
       prompts:[
         ['Vem har väjningsplikt när en bil kör in i en cirkulationsplats?','Föraren som kör in, mot fordon som redan befinner sig i cirkulationen.','Föraren som redan befinner sig i cirkulationen.','Den förare som senast såg det andra fordonet.','Handlingsregeln finns i 3 kap. 22 § trafikförordningen.'],
         ['En sammanstötning har inträffat. Vad behöver utredas för TBL 1 § första stycket?','Om trafikanten i väsentlig mån brast i omsorg och varsamhet.','Om båda fordonen fick plåtskador.','Om försäkringsbolaget redan har utsett en vållande.','Utred körsättet och omständigheterna före kollisionen.'],
@@ -48,6 +51,7 @@ const trafficCourse = (() => {
         ['Olika ansvar','Åsidosättande av en föreskrift om rätten att köra och tillåtande av olovlig körning regleras särskilt. Tillåtandet kan vara oaktsamt. Ta reda på vem som gav lov, vad personen kände till och vilka kontroller som gjordes.'],
         ['Förverkande','Utred återfall, fortsatt tillgång till fordonet, ägare och värde. Förverkande enligt 7 § TBL har ett förebyggande syfte. Bedöm behov och om förverkande skulle vara uppenbart oskäligt. Ett beslag är en separat tvångsmedelsfråga.']
       ],source:['Trafikjuridik 1 och 2','RäV 2024:3','RäV 2023:4','TBL 3 och 7 §§'],
+      questionGoals:["1.3", "1.3", "1.3", "1.3"],
       prompts:[
         ['En förare har glömt sitt körkort hemma men är behörig. Vad innebär det för TBL 3 § första stycket?','Bristande behörighet är inte visad genom det glömda kortet.','Det är automatiskt olovlig körning.','Brottet blir grovt om körkortet är utfärdat utomlands.','Skilj mellan att ha rätt att köra och att kunna visa en handling.'],
         ['Vad behöver täckas av uppsåt vid olovlig körning enligt 3 § första stycket?','Att föraren kör det körkortspliktiga fordonet utan rätt behörighet.','Endast att bilens motor är igång.','Att en olycka sannolikt kommer att inträffa.','Utred vad föraren förstått om sin rätt att köra.'],
@@ -61,6 +65,7 @@ const trafficCourse = (() => {
         ['Halt, påverkan och ordination','För en personbilsförare är straffbarhetsgränsen 0,2 promille i blod eller 0,10 mg/l i utandningsluft. Narkotika i blodet regleras särskilt. Följd medicinsk ordination undantar från just nollgränsregeln. Faktisk påverkan som äventyrar säker körning kan ändå medföra ansvar.'],
         ['Bedöm hela färden','Vid gradindelningen väger bland annat hög halt, avsevärd påverkan och påtaglig trafikfara. Vid påstående om alkohol efter färden behöver tidslinjen prövas. Vem såg körningen, när slutade den och när intogs alkoholen?']
       ],source:['Trafikjuridik 2','TBL 4 och 4 a §§','Lag om alkoholutandningsprov'],
+      questionGoals:["1.3", "1.4", "1.3", "2.1"],
       prompts:[
         ['Vilka två värden är de nedre alkoholgränserna för rattfylleri vid personbilskörning?','0,2 promille i blod eller 0,10 mg/l i utandningsluft.','0,10 promille i blod eller 0,2 mg/l i utandningsluft.','1,0 promille i blod eller 0,50 mg/l i utandningsluft.','Håll isär enheterna. De högre värdena är en omständighet vid bedömningen av grovt brott.'],
         ['Vad visar ett positivt sållningsprov?','Ett utslag som behöver följas upp för att säkra bevisning.','Den exakta alkoholhalten under hela färden.','Att brottet är grovt.','Dokumentera vem som provtogs och när. Skilj sållning från bevisprov.'],
@@ -74,6 +79,7 @@ const trafficCourse = (() => {
         ['Innan föreläggandet','Identiteten ska vara styrkt. Kontrollera förutsättningarna i RB 48 kap., bland annat om den misstänkte förnekar gärningen och vilka andra brott som föreligger till bedömning. Dokumentera konkreta omständigheter.'],
         ['Bemötande och verkan','Gå igenom gärning och belopp, förklara vad godkännandet innebär och ge utrymme för frågor. Ett godkänt föreläggande gäller som en lagakraftvunnen dom. Vid förnekande får ordningsbot inte utfärdas.']
       ],source:['Föreläsning om ordningsbot','PMFS 2020:9 · FAP 261-1','RB 48 kap.'],
+      questionGoals:["2.1", "1.4", "1.4", "2.1"],
       prompts:[
         ['Föraren förnekar den påstådda överträdelsen. Hur påverkar det ordningsboten?','Ordningsbot får inte utfärdas. Dokumentera och rapportera gärningen när den ska rapporteras.','Ordningsbot får utfärdas om en kollega har sett samma sak.','Förnekandet saknar betydelse om identiteten är styrkt.','RB 48 kap. 15 § reglerar hinder mot att utfärda ordningsbot.'],
         ['Vad ska framgå om identiteten när ordningsbot utfärdas?','Hur den misstänktes identitet styrkts.','Endast vilket namn föraren själv angett.','Vem som äger bilen även om föraren är okänd.','FAP 261-1, 3 §, anger både kravet på styrkt identitet och dokumentationen.'],
@@ -87,6 +93,7 @@ const trafficCourse = (() => {
         ['Återskapa händelseförloppet','Ta kontaktuppgifter till vittnen. Skilj deras egna iakttagelser från sådant de hört efteråt. Dokumentera fordonens lägen, skador, skyltning, sikt och väglag. Knyt bilder och skiss till riktningar och fasta punkter.'],
         ['Om någon lämnar platsen','Utred vem som haft del i olyckan, vad personen uppfattat och vilka skyldigheter personen kan ha undandragit sig. Även en trafikant som var utan skuld till kollisionen kan omfattas. Håll isär orsaken till olyckan och beteendet efteråt.']
       ],source:['Hantera trafikolycka','Trafikjuridik 2','TrF 2 kap. 8 §','TBL 5 §'],
+      questionGoals:["2.3", "2.3", "1.3", "2.3"],
       prompts:[
         ['Två bilar har krockat och människor står utsatta för förbipasserande trafik. Vad behöver prioriteras?','Säkerhet, hjälpbehov och en tidig lägesbild.','Detaljförhör om vållande innan någon flyttar sig.','En färdig olycksskiss innan hjälp begärs.','Hantera den omedelbara faran och kommunicera behov av resurser.'],
         ['En förare säger att den andre hade rött. Vad behöver du klargöra?','Vad föraren själv kunde se av signal, plats och körriktning.','Vilken förare som först lämnade en skriftlig version.','Vilken bil som fick dyrast skador.','Observationens förutsättningar påverkar hur utsagan kan värderas.'],
@@ -150,7 +157,7 @@ const trafficCourse = (() => {
   moduleRows.forEach((m,i)=>{
     const qs=m.prompts.map(([q,right,b,c,e],j)=>{
       const pos=(i+2*j)%3, a=[b,c]; a.splice(pos,0,right);
-      return {q,a,c:pos,e,topic:m.title,source:m.source.join(' · '),goal:m.goals[0],origin:j===2?'situation':'course'};
+      return {q,a,c:pos,e,topic:m.title,source:m.source.join(' · '),goal:m.questionGoals[j],origin:j===2?'situation':'course'};
     });
     quiz.push(...qs);
     qs.forEach(q=>flashcards.push([q.q,q.a[q.c]+' '+q.e,m.title]));
@@ -199,6 +206,84 @@ const trafficCourse = (() => {
       ['Fordonet','Vad behöver belysas innan förverkande kan bedömas?','Återfallsrisk, ägarförhållanden, fordonets värde och övriga skälighetsomständigheter.','Endast att bilen var på plats när föraren stoppades.','Behov och skälighet bedöms separat från om föraren begått brott.']
     ],'Håll isär förarens ansvar, utlånarens ansvar och frågan om fordonet.')
   ];
-  return {course:{code:'D1PT2U'},modules,moduleLessons,quiz,flashcards,topicMeta,learningGoals,laws,caseScenarios,sources,links};
+  const tracks = [
+    {
+      id:'salstenta', title:'Inför salstentan', meta:'Individuell skriftlig tentamen · 3,5 hp',
+      intro:'Två personbilar har kolliderat i en cirkulationsplats. Följ ärendet från patrullens första lägesbild till bedömningen av vad som går att rapportera.',
+      lessons:[
+        {id:'ankomst',title:'Prioritera på olycksplatsen',goal:'2.3',module:'olycka',
+         scene:'Vid ankomst står en förare i körbanan. Den andra sitter kvar i bilen. En förbipasserande vill berätta vem som körde först.',
+         example:'Jag ser att trafiken fortfarande passerar föraren i körbanan. Patrullen behöver först bedöma faran, hjälpbehovet och vilka resurser som behövs. En tidig lägesrapport ska skilja det vi kan se från det som ännu är okänt. När läget medger det tar vi vittnets kontaktuppgifter.',
+         change:'Båda förarna är nu på en skyddad plats och ambulansen tar hand om den ena. Vittnet ska gå till bussen om en minut.',
+         ask:'Vad prioriterar du nu, vad frågar du vittnet och vad kan vänta?',
+         hint:'Vilken information riskerar att försvinna när bussen kommer?',
+         compare:['Ta kontaktuppgifter medan vittnet finns kvar och klarlägg kort vad personen själv såg.','Fråga var vittnet stod och om något skymde sikten. Det påverkar hur uppgifterna kan värderas.','Planera för ett utförligare förhör. Dokumentera fordonslägen, skador och platsförhållanden när situationen medger det.'],
+         source:'Hantera trafikolycka, bild 3, 6–9 och 16–22.'},
+        {id:'regel',title:'Hitta rätt trafikregel',goal:'1.4',module:'vardsloshet',
+         scene:'Föraren av den grå bilen uppger att den blå bilen körde in framför henne. Du har sett slutpositionerna men inte själva kollisionen.',
+         example:'Jag behöver veta om den grå bilen redan befann sig i cirkulationen när den blå körde in. Då kan jag koppla en bestämd rörelse till väjningsplikten i 3 kap. 22 § trafikförordningen. Därefter söker jag stöd för straffansvaret i 14 kap.',
+         change:'Det visar sig att båda bilarna redan var inne i cirkulationen. Sammanstötningen kan ha skett när den blå bilen bytte körfält.',
+         ask:'Vad ändras i din bedömning? Ange vilken rörelse och vilka iakttagelser du behöver utreda.',
+         hint:'Gäller bestämmelsen du nyss läste en infart eller ett körfältsbyte?',
+         compare:['Båda fordonen var redan inne. Infartsregeln besvarar därför inte frågan om körfältsbytet.','Utred fordonens placering, avstånd och rörelser före kontakten. Fråga vad vittnet såg av själva förflyttningen i sidled.','Pröva regeln om ändrad placering i sidled i 3 kap. 43 § TrF och sök därefter tillämplig ansvarsbestämmelse.'],
+         source:'Trafikjuridik 1, bild 5–6. Trafikförordningen, 3 kap. 22 och 43 §§ samt 14 kap.',link:1},
+        {id:'rekvisit',title:'Pröva vårdslöshet i trafik',goal:'1.3',module:'vardsloshet',
+         scene:'Den blå bilen har en skadad framskärm. Föraren säger att hon såg den andra bilen först vid kollisionen.',
+         example:'Skadan visar att fordonen kommit i kontakt. För att pröva 1 § TBL behöver jag däremot veta hur körningen gick till. Sikt, fart och tid att reagera hjälper mig att bedöma om bristen i omsorg och varsamhet var väsentlig.',
+         change:'Tänk dig samma körfältsbyte utan kollision. Ett vittne såg den andra föraren bromsa kraftigt. Vittnet är osäkert på avståndet.',
+         ask:'Kan 1 § TBL fortfarande aktualiseras? Vad talar för en risk och vad är fortfarande oklart?',
+         hint:'Pröva tre frågor. Hur körde föraren? Vilken risk uppstod? Vad stöder uppgifterna?',
+         compare:['En fysisk skada krävs inte för vårdslöshet i trafik. Det är körsättet som ska bedömas.','Inbromsningen är en konkret uppgift om risk. Utred när den skedde och om körfältsbytet orsakade den.','Osäkert avstånd och okänd hastighet begränsar slutsatsen. Förklara vad som behöver klarläggas innan du bedömer graden av oaktsamhet.'],
+         source:'Trafikjuridik 1, bild 23–29. RäV 2023:18. Trafikbrottslagen, 1 §.',link:0},
+        {id:'rapport',title:'Välj rapporteringsväg',goal:'2.1',module:'ordningsbot',
+         scene:'En kollega vill utfärda ordningsbot för en överträdelse av trafikförordningen. Föraren invänder att hon hela tiden låg kvar i sitt körfält.',
+         example:'Jag klarlägger om föraren faktiskt förnekar gärningen. Vid förnekande får ordningsbot inte utfärdas enligt 48 kap. 15 § RB. När gärningen ska rapporteras måste både grunden för misstanken och förarens invändning kunna följas i rapporteringen.',
+         change:'I en annan kontroll säger föraren att bältet togs av först när bilen stod still. Kollegan såg bältet hänga löst efter stoppet.',
+         ask:'Skilj kollegans observation från förarens uppgift. Vad saknas för att styrka gärningen under färd?',
+         hint:'Pröva först vad som är styrkt. Ta därefter ställning till hur gärningen kan handläggas.',
+         compare:['Kollegans observation gäller den stillastående bilen. Den visar inte i sig hur bältet användes under färd.','Förarens förklaring ska framgå som en utsaga. Fråga om någon faktiskt såg bältet under körningen och från vilken plats.','Om gärningen förnekas finns hinder mot ordningsbot. Bedöm den samlade utredningen innan du tar ställning till fortsatt rapportering.'],
+         source:'Föreläsning om ordningsbot, bild 5, 16, 18 och 20–22. RB 48 kap. 15 §.',link:3}
+      ]
+    },
+    {
+      id:'basgrupp',title:'Inför basgruppsuppgiften',meta:'Skriftlig inlämningsuppgift · 3 hp',
+      intro:'Vid en skola beskriver föräldrar att barn har svårt att korsa vägen. Använd det fiktiva fallet för att öva analys, bemötande och källvärdering tillsammans.',
+      lessons:[
+        {id:'problem',title:'Från oro till undersökningsfråga',goal:'1.1',also:['1.2'],module:'uppdrag',
+         scene:'Skolan uppger att bilar kör för fort när eleverna kommer på morgonen. Kommunens senaste mätning gäller hela dygnet.',
+         example:'Polisens trafiksäkerhetsarbete syftar till att färre människor dödas eller skadas allvarligt. För att välja insats behöver jag veta när och var barn möter trafiken. Ett dygnsmedel kan dölja vad som händer under de tjugo minuter då flest barn passerar.',
+         change:'Observationer visar att de flesta håller hastighetsgränsen. Däremot skymmer parkerade bilar sikten nära övergångsstället vid lämning.',
+         ask:'Hur förändras din problembild? Föreslå en åtgärd och ett sätt att följa upp om situationen blir säkrare.',
+         hint:'Försök koppla ihop en möjlig orsak, en aktör som kan påverka den och något som går att observera.',
+         compare:['Avgränsa problemet till skymd sikt på den aktuella platsen och tiden. Beskriv hur det påverkar barnen.','Diskutera exempelvis lämningsplatsens placering med skola och väghållare. Motivera varför det kan förbättra sikten.','Följ upp sikt och konflikter mellan gående och fordon vid jämförbara tider före och efter.'],
+         source:'Kursplan D1PT2U, mål 1.1 och 1.2. Polismyndigheten, Trafik.',link:7},
+        {id:'mote',title:'Planera kontrollen och samtalet',goal:'2.2',also:['3.1'],module:'kontroll',
+         scene:'Patrullen planerar en förarkontroll nära skolan. Där den först tänkt stanna fordon rör sig barn mellan parkerade bilar.',
+         example:'Jag väljer en plats där det finns förutsättningar att genomföra kontrollen säkert. Jag behöver kunna förklara både kontrollens syfte och stödet för stoppet. När jag möter föraren säger jag vad kontrollen gäller och vad jag ber personen göra.',
+         change:'Föraren uppfattar stoppet som en anklagelse och säger att barnen blir sena. Trafiken köar bakom bilen.',
+         ask:'Vad behöver patrullen ompröva på platsen? Skriv sedan de två första meningarna du själv skulle säga till föraren.',
+         hint:'Ta med både den förändrade trafikmiljön och förarens möjlighet att förstå vad som händer.',
+         compare:['Ompröva platsens säkerhet för barnen, föraren och patrullen när kön förändrar trafikmiljön.','Ett möjligt bemötande är ”Jag hör att ni har bråttom. Vi gör en förarkontroll här och jag vill börja med att kontrollera ditt körkort.”','Reflektera över tonläge och tydlighet. Föraren ska kunna förstå skälet till kontrollen och komma till tals.'],
+         source:'Studiehandledning Trafik Distans. Kursplan D1PT2U, mål 2.2 och 3.1. Polislagen, 22 §.',link:2},
+        {id:'underlag',title:'Skilj iakttagelse från slutsats',goal:'2.1',module:'ordningsbot',
+         scene:'En förälder säger att en förare tittade på mobilen. När patrullen kom fram höll föraren mobilen i en parkerad bil.',
+         example:'I underlaget anger jag vem som har sett vad och när. Förälderns utsaga om körningen och patrullens senare observation gäller olika tidpunkter. Innan jag kan bedöma gärningen behöver jag fler uppgifter om själva färden.',
+         change:'Föräldern förtydligar att hon bara sett skärmen lysa genom rutan. Föraren säger att bilen stod still när telefonen togs upp.',
+         ask:'Vilka två följdfrågor skulle göra störst skillnad för utredningen? Förklara varför.',
+         hint:'Både rörelsen och hanteringen av föremålet är oklara.',
+         compare:['Fråga hur vittnet kunde se om bilen rörde sig och när skärmen syntes i förhållande till detta.','Fråga vad vittnet faktiskt såg av förarens händer och telefonen samt var vittnet stod.','Håll isär osäkra och säkra uppgifter när du bedömer om det finns stöd för en gärning och för aktuell rapporteringsväg.'],
+         source:'Trafikjuridik 1. Föreläsning om ordningsbot, bild 16–22.'},
+        {id:'kallor',title:'Värdera källorna och effekten',goal:'2.4',also:['1.2','3.1'],module:'uppdrag',
+         scene:'I övningsfallet registrerades 8 konflikter under 200 passager före en åtgärd. Efteråt registrerades 6 konflikter under 100 passager. En förälder säger att det känns lugnare.',
+         example:'Antalet konflikter har minskat från åtta till sex, men antalet passager har också ändrats. Före åtgärden registrerades fyra konflikter per hundra passager. Efteråt var det sex. Förälderns utsaga beskriver upplevd trygghet och tillför ett annat perspektiv.',
+         change:'Du får veta att förmätningen gjordes en vanlig måndag och eftermätningen under en friluftsdag.',
+         ask:'Vilken slutsats håller nu? Ange vad som bygger på observation, vad som är upplevelse och vad som behöver undersökas igen.',
+         hint:'Skilj mellan vad materialet visar och vilken förklaring materialet bär.',
+         compare:['Redovisa antal och nämnare. Mätningarna avser olika förhållanden och räcker inte för att tillskriva åtgärden en effekt.','Tillskriv föräldern upplevelsen och mätningen observationerna. Håll din egen tolkning tydligt urskiljbar.','Föreslå jämförbara tider och samma observationsmetod. Hänvisa till varje underlag där uppgiften används.'],
+         source:'Kursplan D1PT2U, mål 1.2, 2.4 och 3.1. Siffrorna är konstruerade för övningen.'}
+      ]
+    }
+  ];
+  return {tracks,course:{code:'D1PT2U'},modules,moduleLessons,quiz,flashcards,topicMeta,learningGoals,laws,caseScenarios,sources,links};
 })();
 window.STUDY_DATA=trafficCourse;

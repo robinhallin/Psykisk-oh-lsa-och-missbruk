@@ -7,7 +7,7 @@
   <meta name="description" content="Interaktiv studieportal för Polisiärt arbete i trafik." />
   <title>Polisiärt arbete i trafik · Studieportal</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="styles.css?kurs=trafik1" />
+  <link rel="stylesheet" href="styles.css?kurs=trafik2" />
 </head>
 <body>
   <section class="pin-gate" id="pinGate" aria-labelledby="pinTitle">
@@ -43,7 +43,7 @@
     </nav>
     <div class="top-actions">
       <select id="mobileNav" aria-label="Navigera i trafikportalen">
-        <option value="home">Översikt</option><option value="modules">Moduler</option><option value="laws">Lagrum</option><option value="goals">Kursmål</option><option value="review">Repetition</option><option value="exam">Tentaträning</option><option value="cases">Trafikfall</option><option value="notes">Anteckningar</option><option value="sources">Källor</option>
+        <option value="home">Översikt</option><option value="study/salstenta">Inför salstentan</option><option value="study/basgrupp">Inför basgruppen</option><option value="modules">Moduler</option><option value="laws">Lagrum</option><option value="goals">Kursmål</option><option value="review">Repetition</option><option value="exam">Tentaträning</option><option value="cases">Trafikfall</option><option value="notes">Anteckningar</option><option value="sources">Källor</option>
       </select>
       <button class="icon-btn" id="searchBtn" title="Sök (/)" aria-label="Sök">⌕</button>
       <button class="icon-btn" id="themeBtn" title="Växla tema" aria-label="Växla färgtema">◐</button>
@@ -57,6 +57,8 @@
       <div><strong>Modulprogress</strong><small id="progressText">0 av 0 moduler behärskade</small></div>
     </div>
     <button class="side-link active" data-nav="home">⌂ <span>Översikt</span></button>
+    <button class="side-link" data-nav="study/salstenta">◇ <span>Inför salstentan</span></button>
+    <button class="side-link" data-nav="study/basgrupp">▤ <span>Inför basgruppen</span></button>
     <button class="side-link" data-nav="modules">▦ <span>Alla moduler</span></button>
     <button class="side-link" data-nav="laws">§ <span>Lagrumsbanken</span></button>
     <button class="side-link" data-nav="goals">◎ <span>Lärandemål</span></button>
@@ -82,7 +84,7 @@
   </div>
 
   <script src="pin-lock.js"></script>
-  <script src="data.js?kurs=trafik1"></script>
-  <script src="app.js?kurs=trafik1"></script>
+  <script src="data.js?kurs=trafik2"></script>
+  <script src="app.js?kurs=trafik2"></script>
 </body>
 </html>
